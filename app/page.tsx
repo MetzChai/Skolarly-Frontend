@@ -2,6 +2,7 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
 import { BookOpen, BrainCircuit, MessageSquare, Calendar, ArrowRight, Sparkles, Target } from 'lucide-react'
+import { AuthModal } from '@/components/auth-modal'
 
 export default function LandingPage() {
   return (
@@ -10,7 +11,7 @@ export default function LandingPage() {
       <nav className="border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/" className="flex items-center gap-3">
               <Image
                 src="/images/skolarly-logo.png"
                 alt="Skolarly Logo"
@@ -18,6 +19,7 @@ export default function LandingPage() {
                 height={40}
                 className="h-10 w-auto"
               />
+              <span className="text-xl font-bold text-foreground">Skolarly</span>
             </Link>
             <div className="hidden sm:flex items-center gap-6 text-sm font-medium">
               <Link href="#features" className="text-muted-foreground hover:text-foreground transition-colors">
@@ -27,7 +29,8 @@ export default function LandingPage() {
                 How it works
               </Link>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              <AuthModal />
               <Link href="/dashboard">
                 <Button>Get Started</Button>
               </Link>

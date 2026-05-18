@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { BookOpen, BrainCircuit, MessageSquare, Calendar, Home, Menu, X } from 'lucide-react'
+import { BookOpen, BrainCircuit, MessageSquare, Calendar, Home, Menu, X, ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
@@ -61,6 +61,13 @@ export default function DashboardLayout({
           </div>
           
           <nav className="flex-1 p-4 space-y-1">
+            <Link
+              href="/"
+              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground mb-4 border-b border-sidebar-border pb-4"
+            >
+              <ArrowLeft className="w-5 h-5" />
+              Back to Home
+            </Link>
             {navItems.map((item) => {
               const isActive = pathname === item.href || 
                 (item.href !== '/dashboard' && pathname.startsWith(item.href))
