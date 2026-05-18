@@ -1,6 +1,7 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { BookOpen, BrainCircuit, MessageSquare, Calendar, ArrowRight, Sparkles, GraduationCap, Target } from 'lucide-react'
+import { BookOpen, BrainCircuit, MessageSquare, Calendar, ArrowRight, Sparkles, Target } from 'lucide-react'
 
 export default function LandingPage() {
   return (
@@ -10,11 +11,22 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                <GraduationCap className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <span className="text-xl font-bold text-foreground">Skolarly</span>
+              <Image
+                src="/images/skolarly-logo.png"
+                alt="Skolarly Logo"
+                width={140}
+                height={40}
+                className="h-10 w-auto"
+              />
             </Link>
+            <div className="hidden sm:flex items-center gap-6 text-sm font-medium">
+              <Link href="#features" className="text-muted-foreground hover:text-foreground transition-colors">
+                Features
+              </Link>
+              <Link href="#how-it-works" className="text-muted-foreground hover:text-foreground transition-colors">
+                How it works
+              </Link>
+            </div>
             <div className="flex items-center gap-4">
               <Link href="/dashboard">
                 <Button>Get Started</Button>
@@ -27,29 +39,50 @@ export default function LandingPage() {
       {/* Hero Section */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 sm:py-32 relative">
-          <div className="text-center max-w-3xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
-              <Sparkles className="w-4 h-4" />
-              AI-Powered Learning
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24 relative">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            {/* Left content */}
+            <div className="text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
+                <Sparkles className="w-4 h-4" />
+                AI-Powered Learning
+              </div>
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground tracking-tight text-balance">
+                Your Intelligent{' '}
+                <span className="text-secondary">Study Companion</span>
+              </h1>
+              <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-xl text-pretty">
+                Transform how you learn with AI-powered lesson explanations, personalized quizzes, an always-available tutor, and smart study planning.
+              </p>
+              <div className="mt-10 flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-4">
+                <Link href="/dashboard">
+                  <Button size="lg" className="gap-2 px-8">
+                    Start Learning Free <ArrowRight className="w-4 h-4" />
+                  </Button>
+                </Link>
+                <Link href="#how-it-works">
+                  <Button size="lg" variant="outline" className="px-8">
+                    See How It Works
+                  </Button>
+                </Link>
+              </div>
             </div>
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-foreground tracking-tight text-balance">
-              Your Intelligent Study Companion
-            </h1>
-            <p className="mt-6 text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto text-pretty">
-              Master any subject with AI-powered explanations, interactive quizzes, a personal tutor chatbot, and smart study planning.
-            </p>
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <Link href="/dashboard">
-                <Button size="lg" className="gap-2 px-8">
-                  Start Learning <ArrowRight className="w-4 h-4" />
-                </Button>
-              </Link>
-              <Link href="#features">
-                <Button size="lg" variant="outline" className="px-8">
-                  Explore Features
-                </Button>
-              </Link>
+            
+            {/* Right hero image */}
+            <div className="relative">
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl">
+                <Image
+                  src="/images/hero-image.png"
+                  alt="Skolarly - Your Intelligent Study Companion"
+                  width={800}
+                  height={500}
+                  className="w-full h-auto object-cover"
+                  priority
+                />
+              </div>
+              {/* Decorative elements */}
+              <div className="absolute -top-4 -right-4 w-24 h-24 bg-primary/10 rounded-full blur-2xl" />
+              <div className="absolute -bottom-4 -left-4 w-32 h-32 bg-secondary/10 rounded-full blur-2xl" />
             </div>
           </div>
         </div>
@@ -101,7 +134,7 @@ export default function LandingPage() {
       </section>
 
       {/* How It Works Section */}
-      <section className="py-24">
+      <section id="how-it-works" className="py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold text-foreground">
@@ -158,14 +191,17 @@ export default function LandingPage() {
       <footer className="border-t border-border py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                <GraduationCap className="w-5 h-5 text-primary-foreground" />
-              </div>
-              <span className="text-lg font-semibold text-foreground">Skolarly</span>
-            </div>
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/images/skolarly-logo.png"
+                alt="Skolarly Logo"
+                width={120}
+                height={36}
+                className="h-9 w-auto"
+              />
+            </Link>
             <p className="text-muted-foreground text-sm">
-              Your AI-Powered Study Companion
+              Learn Smarter. Achieve More.
             </p>
           </div>
         </div>

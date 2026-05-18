@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { BookOpen, BrainCircuit, MessageSquare, Calendar, GraduationCap, Home, Menu, X } from 'lucide-react'
+import { BookOpen, BrainCircuit, MessageSquare, Calendar, Home, Menu, X } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
@@ -40,11 +41,14 @@ export default function DashboardLayout({
       )}>
         <div className="flex flex-col h-full">
           <div className="flex items-center justify-between h-16 px-4 border-b border-sidebar-border">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-sidebar-primary flex items-center justify-center">
-                <GraduationCap className="w-5 h-5 text-sidebar-primary-foreground" />
-              </div>
-              <span className="text-lg font-bold text-sidebar-foreground">Skolarly</span>
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/images/skolarly-logo.png"
+                alt="Skolarly Logo"
+                width={120}
+                height={36}
+                className="h-9 w-auto"
+              />
             </Link>
             <Button 
               variant="ghost" 
@@ -92,11 +96,14 @@ export default function DashboardLayout({
           >
             <Menu className="w-5 h-5" />
           </Button>
-          <Link href="/" className="flex items-center gap-2 ml-3">
-            <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
-              <GraduationCap className="w-4 h-4 text-primary-foreground" />
-            </div>
-            <span className="text-lg font-bold">Skolarly</span>
+          <Link href="/" className="flex items-center ml-3">
+            <Image
+              src="/images/skolarly-logo.png"
+              alt="Skolarly Logo"
+              width={100}
+              height={30}
+              className="h-7 w-auto"
+            />
           </Link>
         </header>
 
