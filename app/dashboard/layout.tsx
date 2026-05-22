@@ -3,18 +3,11 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { usePathname } from 'next/navigation'
-import { BookOpen, BrainCircuit, MessageSquare, Calendar, Home, Menu, X, ArrowLeft } from 'lucide-react'
+import { ArrowLeft, Menu, X, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
-
-const navItems = [
-  { href: '/dashboard', label: 'Dashboard', icon: Home },
-  { href: '/dashboard/lessons', label: 'Lessons', icon: BookOpen },
-  { href: '/dashboard/quizzes', label: 'Quizzes', icon: BrainCircuit },
-  { href: '/dashboard/chat', label: 'AI Tutor', icon: MessageSquare },
-  { href: '/dashboard/planner', label: 'Study Planner', icon: Calendar },
-]
+import { dashboardNavItems, getPageMeta } from '@/lib/dashboard-nav'
 
 export default function DashboardLayout({
   children,
@@ -23,98 +16,139 @@ export default function DashboardLayout({
 }) {
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const pageMeta = getPageMeta(pathname)
+  const isChat = pathname === '/dashboard/chat'
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Mobile sidebar backdrop */}
+    <div className="min-h-screen bg-muted/30">
       {sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-foreground/20 backdrop-blur-sm z-40 lg:hidden"
+        <div
+          className="fixed inset-0 z-40 bg-foreground/25 backdrop-blur-sm lg:hidden"
           onClick={() => setSidebarOpen(false)}
+          aria-hidden
         />
       )}
 
-      {/* Sidebar */}
-      <aside className={cn(
-        "fixed top-0 left-0 z-50 h-full w-64 border-r border-border bg-sidebar transform transition-transform duration-200 ease-in-out lg:translate-x-0",
-        sidebarOpen ? "translate-x-0" : "-translate-x-full"
-      )}>
-        <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between h-16 px-4 border-b border-sidebar-border">
-            <Link href="/" className="flex items-center">
-              <Image
-                src="/images/skolarly-logo.png"
-                alt="Skolarly Logo"
-                width={120}
-                height={36}
-                className="h-9 w-auto"
-              />
-            </Link>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="lg:hidden text-sidebar-foreground"
-              onClick={() => setSidebarOpen(false)}
-            >
-              <X className="w-5 h-5" />
-            </Button>
-          </div>
-          
-          <nav className="flex-1 p-4 space-y-1">
-            <Link
-              href="/"
-              className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground mb-4 border-b border-sidebar-border pb-4"
-            >
-              <ArrowLeft className="w-5 h-5" />
-              Back to Home
-            </Link>
-            {navItems.map((item) => {
-              const isActive = pathname === item.href || 
-                (item.href !== '/dashboard' && pathname.startsWith(item.href))
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setSidebarOpen(false)}
+      <aside
+        className={cn(
+          'fixed top-0 left-0 z-50 flex h-full w-[17.5rem] flex-col border-r border-sidebar-border bg-sidebar shadow-xl shadow-black/5 transition-transform duration-200 ease-out lg:translate-x-0',
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full',
+        )}
+      >
+        <div className="flex h-16 items-center gap-2.5 border-b border-sidebar-border px-4">
+          <Link href="/" className="flex min-w-0 flex-1 items-center gap-2.5">
+            <Image
+              src="/images/skolarly-logo.png"
+              alt="Skolarly"
+              width={36}
+              height={36}
+              className="size-9 shrink-0 object-contain"
+            />
+            <span className="truncate text-lg font-bold text-primary">Skolarly</span>
+          </Link>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="shrink-0 text-sidebar-foreground lg:hidden"
+            onClick={() => setSidebarOpen(false)}
+          >
+            <X className="size-5" />
+          </Button>
+        </div>
+
+        <nav className="flex-1 space-y-1 overflow-y-auto p-3">
+          <Link
+            href="/"
+            className="mb-2 flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+          >
+            <ArrowLeft className="size-4 shrink-0" />
+            Back to home
+          </Link>
+
+          <p className="px-3 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+            Study tools
+          </p>
+
+          {dashboardNavItems.map((item) => {
+            const isActive =
+              pathname === item.href ||
+              (item.href !== '/dashboard' && pathname.startsWith(item.href))
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setSidebarOpen(false)}
+                className={cn(
+                  'group relative flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors',
+                  isActive
+                    ? 'bg-sidebar-accent text-sidebar-primary'
+                    : 'text-sidebar-foreground hover:bg-sidebar-accent/80 hover:text-sidebar-accent-foreground',
+                )}
+              >
+                {isActive && (
+                  <span className="absolute top-1/2 left-0 h-6 w-1 -translate-y-1/2 rounded-r-full bg-primary" />
+                )}
+                <item.icon
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
-                    isActive 
-                      ? "bg-sidebar-accent text-sidebar-primary" 
-                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                    'size-5 shrink-0 transition-colors',
+                    isActive ? 'text-primary' : 'text-muted-foreground group-hover:text-foreground',
                   )}
-                >
-                  <item.icon className="w-5 h-5" />
-                  {item.label}
-                </Link>
-              )
-            })}
-          </nav>
+                />
+                <span className="truncate">{item.label}</span>
+              </Link>
+            )
+          })}
+        </nav>
+
+        <div className="border-t border-sidebar-border p-3">
+          <Link
+            href="/dashboard/chat"
+            onClick={() => setSidebarOpen(false)}
+            className="block rounded-xl bg-gradient-to-br from-primary/15 via-primary/5 to-secondary/10 p-4 ring-1 ring-primary/15 transition-shadow hover:shadow-md"
+          >
+            <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+              <Sparkles className="size-4 text-primary" />
+              Need help studying?
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">Ask the AI tutor anything</p>
+          </Link>
         </div>
       </aside>
 
-      {/* Main content */}
-      <div className="lg:pl-64">
-        {/* Mobile header */}
-        <header className="sticky top-0 z-30 flex items-center h-16 px-4 border-b border-border bg-background/80 backdrop-blur-sm lg:hidden">
-          <Button 
-            variant="ghost" 
+      <div className="flex min-h-screen flex-col lg:pl-[17.5rem]">
+        <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-border/80 bg-background/90 px-4 backdrop-blur-md sm:px-6">
+          <Button
+            variant="ghost"
             size="icon"
+            className="lg:hidden"
             onClick={() => setSidebarOpen(true)}
+            aria-label="Open menu"
           >
-            <Menu className="w-5 h-5" />
+            <Menu className="size-5" />
           </Button>
-          <Link href="/" className="flex items-center ml-3">
-            <Image
-              src="/images/skolarly-logo.png"
-              alt="Skolarly Logo"
-              width={100}
-              height={30}
-              className="h-7 w-auto"
-            />
+
+          <div className="min-w-0 flex-1 lg:ml-0">
+            <p className="truncate text-sm font-semibold text-foreground">{pageMeta.title}</p>
+            <p className="hidden truncate text-xs text-muted-foreground sm:block">
+              {pageMeta.description}
+            </p>
+          </div>
+
+          <Link href="/dashboard/chat" className="hidden sm:block">
+            <Button size="sm" variant="outline" className="gap-1.5">
+              <Sparkles className="size-3.5" />
+              Ask tutor
+            </Button>
           </Link>
         </header>
 
-        <main className="min-h-[calc(100vh-4rem)] lg:min-h-screen">
+        <main
+          className={cn(
+            'flex flex-1 flex-col',
+            isChat ? 'min-h-0 overflow-hidden' : '',
+          )}
+        >
           {children}
         </main>
       </div>

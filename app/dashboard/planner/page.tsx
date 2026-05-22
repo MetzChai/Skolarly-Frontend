@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Calendar, Sparkles, Loader2, Clock, CheckCircle, Circle, CalendarDays } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { PageHeader } from '@/components/dashboard/page-header'
+import { DashboardShell } from '@/components/dashboard/dashboard-shell'
 
 interface StudyTask {
   id: string
@@ -145,20 +147,15 @@ export default function PlannerPage() {
   // Create View
   if (viewState === 'create') {
     return (
-      <div className="p-6 lg:p-8 max-w-3xl mx-auto">
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center">
-              <Calendar className="w-5 h-5 text-secondary-foreground" />
-            </div>
-            <h1 className="text-3xl font-bold text-foreground">Study Planner</h1>
-          </div>
-          <p className="text-muted-foreground">
-            Generate an AI-powered study schedule tailored to your goals and available time.
-          </p>
-        </div>
+      <DashboardShell size="md">
+        <PageHeader
+          title="Study Planner"
+          description="Generate an AI-powered study schedule tailored to your goals and available time."
+          icon={Calendar}
+          variant="secondary"
+        />
 
-        <Card>
+        <Card className="border-border/80 shadow-sm">
           <CardHeader>
             <CardTitle>Create Study Plan</CardTitle>
             <CardDescription>
@@ -269,7 +266,7 @@ export default function PlannerPage() {
             </form>
           </CardContent>
         </Card>
-      </div>
+      </DashboardShell>
     )
   }
 
@@ -278,19 +275,18 @@ export default function PlannerPage() {
     const groupedTasks = groupTasksByDate(tasks)
 
     return (
-      <div className="p-6 lg:p-8 max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="flex items-start justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">{plan.plan.title}</h1>
-            <p className="text-muted-foreground text-sm mt-1">
-              {new Date(plan.plan.start_date).toLocaleDateString()} - {new Date(plan.plan.end_date).toLocaleDateString()}
-            </p>
-          </div>
-          <Button variant="outline" onClick={handleReset}>
-            New Plan
-          </Button>
-        </div>
+      <DashboardShell size="lg">
+        <PageHeader
+          title={plan.plan.title}
+          description={`${new Date(plan.plan.start_date).toLocaleDateString()} – ${new Date(plan.plan.end_date).toLocaleDateString()}`}
+          icon={Calendar}
+          variant="secondary"
+          action={
+            <Button variant="outline" onClick={handleReset}>
+              New plan
+            </Button>
+          }
+        />
 
         {/* Progress Card */}
         <Card className="mb-6 border-primary/30 bg-primary/5">
@@ -365,7 +361,7 @@ export default function PlannerPage() {
               </div>
             ))}
         </div>
-      </div>
+      </DashboardShell>
     )
   }
 

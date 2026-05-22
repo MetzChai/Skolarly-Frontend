@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { BrainCircuit, Sparkles, Loader2, CheckCircle, XCircle, RotateCcw, Trophy } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { PageHeader } from '@/components/dashboard/page-header'
+import { DashboardShell } from '@/components/dashboard/dashboard-shell'
 
 interface QuizQuestion {
   question: string
@@ -110,20 +112,15 @@ export default function QuizzesPage() {
   // Setup State
   if (quizState === 'setup') {
     return (
-      <div className="p-6 lg:p-8 max-w-3xl mx-auto">
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center">
-              <BrainCircuit className="w-5 h-5 text-secondary-foreground" />
-            </div>
-            <h1 className="text-3xl font-bold text-foreground">Quiz Generator</h1>
-          </div>
-          <p className="text-muted-foreground">
-            Generate custom quizzes on any topic to test your knowledge.
-          </p>
-        </div>
+      <DashboardShell size="md">
+        <PageHeader
+          title="Quiz Generator"
+          description="Generate custom quizzes on any topic to test your knowledge."
+          icon={BrainCircuit}
+          variant="secondary"
+        />
 
-        <Card>
+        <Card className="border-border/80 shadow-sm">
           <CardHeader>
             <CardTitle>Create Your Quiz</CardTitle>
             <CardDescription>Choose a topic, difficulty, and number of questions</CardDescription>
@@ -207,7 +204,7 @@ export default function QuizzesPage() {
             </form>
           </CardContent>
         </Card>
-      </div>
+      </DashboardShell>
     )
   }
 
@@ -218,8 +215,7 @@ export default function QuizzesPage() {
     const isCorrect = selectedAnswer === question.correctAnswer
 
     return (
-      <div className="p-6 lg:p-8 max-w-3xl mx-auto">
-        {/* Progress Header */}
+      <DashboardShell size="md">
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-muted-foreground">
@@ -237,7 +233,7 @@ export default function QuizzesPage() {
           </div>
         </div>
 
-        <Card>
+        <Card className="border-border/80 shadow-sm">
           <CardHeader>
             <CardTitle className="text-xl leading-relaxed">{question.question}</CardTitle>
           </CardHeader>
@@ -305,7 +301,7 @@ export default function QuizzesPage() {
             )}
           </CardContent>
         </Card>
-      </div>
+      </DashboardShell>
     )
   }
 
@@ -314,8 +310,8 @@ export default function QuizzesPage() {
     const score = calculateScore()
 
     return (
-      <div className="p-6 lg:p-8 max-w-3xl mx-auto">
-        <Card>
+      <DashboardShell size="md">
+        <Card className="border-border/80 shadow-sm">
           <CardHeader className="text-center pb-2">
             <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
               <Trophy className="w-10 h-10 text-primary" />
@@ -355,7 +351,7 @@ export default function QuizzesPage() {
             </div>
           </CardContent>
         </Card>
-      </div>
+      </DashboardShell>
     )
   }
 

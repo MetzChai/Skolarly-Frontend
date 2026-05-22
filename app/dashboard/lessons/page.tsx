@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { BookOpen, Sparkles, Loader2, FileText, CheckCircle } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
+import { PageHeader } from '@/components/dashboard/page-header'
+import { DashboardShell } from '@/components/dashboard/dashboard-shell'
 
 interface LessonResult {
   explanation: string
@@ -62,22 +64,15 @@ export default function LessonsPage() {
   }
 
   return (
-    <div className="p-6 lg:p-8 max-w-5xl mx-auto">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-            <BookOpen className="w-5 h-5 text-primary" />
-          </div>
-          <h1 className="text-3xl font-bold text-foreground">Lesson Explainer</h1>
-        </div>
-        <p className="text-muted-foreground">
-          Paste your lesson content and get AI-powered explanations with key concepts and summaries.
-        </p>
-      </div>
+    <DashboardShell size="lg">
+      <PageHeader
+        title="Lesson Explainer"
+        description="Paste your lesson content and get AI-powered explanations with key concepts and summaries."
+        icon={BookOpen}
+      />
 
       {!result ? (
-        <Card>
+        <Card className="border-border/80 shadow-sm">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="w-5 h-5" />
@@ -183,6 +178,6 @@ export default function LessonsPage() {
           </Card>
         </div>
       )}
-    </div>
+    </DashboardShell>
   )
 }

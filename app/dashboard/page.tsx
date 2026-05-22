@@ -1,7 +1,21 @@
 import Link from 'next/link'
-import { BookOpen, BrainCircuit, MessageSquare, Calendar, ArrowRight, TrendingUp, Clock, Target } from 'lucide-react'
+import {
+  BookOpen,
+  BrainCircuit,
+  MessageSquare,
+  Calendar,
+  ArrowRight,
+  TrendingUp,
+  Clock,
+  Target,
+  Sparkles,
+  Zap,
+} from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { DashboardShell } from '@/components/dashboard/dashboard-shell'
+import { cn } from '@/lib/utils'
 
 const features = [
   {
@@ -9,102 +23,188 @@ const features = [
     description: 'Get AI-powered explanations for any topic or lesson content.',
     icon: BookOpen,
     href: '/dashboard/lessons',
-    color: 'bg-primary/10 text-primary',
+    variant: 'primary' as const,
+    badge: 'Understand',
   },
   {
     title: 'Quiz Generator',
     description: 'Create custom quizzes to test your knowledge on any subject.',
     icon: BrainCircuit,
     href: '/dashboard/quizzes',
-    color: 'bg-secondary text-secondary-foreground',
+    variant: 'secondary' as const,
+    badge: 'Practice',
   },
   {
     title: 'AI Tutor Chat',
     description: 'Chat with an intelligent tutor for personalized help.',
     icon: MessageSquare,
     href: '/dashboard/chat',
-    color: 'bg-primary/10 text-primary',
+    variant: 'primary' as const,
+    badge: 'Ask',
   },
   {
     title: 'Study Planner',
     description: 'Create AI-generated study schedules for your goals.',
     icon: Calendar,
     href: '/dashboard/planner',
-    color: 'bg-secondary text-secondary-foreground',
+    variant: 'secondary' as const,
+    badge: 'Plan',
   },
 ]
 
 const quickStats = [
-  { label: 'Learning Streak', value: '0 days', icon: TrendingUp },
-  { label: 'Study Time', value: '0 hrs', icon: Clock },
-  { label: 'Quizzes Taken', value: '0', icon: Target },
+  {
+    label: 'Learning streak',
+    value: '0',
+    unit: 'days',
+    icon: TrendingUp,
+    hint: 'Start a session today',
+  },
+  {
+    label: 'Study time',
+    value: '0',
+    unit: 'hrs',
+    icon: Clock,
+    hint: 'Track your focus time',
+  },
+  {
+    label: 'Quizzes taken',
+    value: '0',
+    unit: '',
+    icon: Target,
+    hint: 'Test what you learn',
+  },
 ]
+
+function getGreeting() {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Good morning'
+  if (hour < 17) return 'Good afternoon'
+  return 'Good evening'
+}
 
 export default function DashboardPage() {
   return (
-    <div className="p-6 lg:p-8 max-w-7xl mx-auto">
-      {/* Welcome Section */}
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold text-foreground">Welcome to Skolarly</h1>
-        <p className="text-muted-foreground mt-2">Your AI-powered study companion. Choose a tool to get started.</p>
+    <DashboardShell>
+      <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-br from-primary/10 via-card to-secondary/10 p-6 sm:p-8">
+        <div className="absolute -top-12 -right-12 size-40 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute -bottom-8 -left-8 size-32 rounded-full bg-secondary/15 blur-2xl" />
+        <div className="relative">
+          <Badge variant="secondary" className="mb-3 gap-1 bg-background/60">
+            <Sparkles className="size-3" />
+            AI-powered learning
+          </Badge>
+          <h1 className="text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
+            {getGreeting()}, ready to learn?
+          </h1>
+          <p className="mt-2 max-w-xl text-muted-foreground">
+            Pick a tool below to explain lessons, generate quizzes, chat with your tutor, or plan your
+            week.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link href="/dashboard/chat">
+              <Button className="gap-2">
+                <Zap className="size-4" />
+                Start with AI Tutor
+              </Button>
+            </Link>
+            <Link href="/dashboard/planner">
+              <Button variant="outline">Plan my week</Button>
+            </Link>
+          </div>
+        </div>
       </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-8">
+      <div className="mt-8 grid gap-4 sm:grid-cols-3">
         {quickStats.map((stat) => (
-          <Card key={stat.label} className="bg-card">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                <stat.icon className="w-5 h-5 text-primary" />
+          <Card
+            key={stat.label}
+            className="border-border/80 bg-card/80 shadow-sm transition-shadow hover:shadow-md"
+          >
+            <CardContent className="flex items-center gap-4 p-4 sm:p-5">
+              <div className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 ring-1 ring-primary/15">
+                <stat.icon className="size-5 text-primary" />
               </div>
-              <div>
-                <p className="text-2xl font-bold text-foreground">{stat.value}</p>
-                <p className="text-xs text-muted-foreground">{stat.label}</p>
+              <div className="min-w-0">
+                <p className="text-2xl font-bold tabular-nums text-foreground">
+                  {stat.value}
+                  {stat.unit && (
+                    <span className="ml-1 text-sm font-medium text-muted-foreground">{stat.unit}</span>
+                  )}
+                </p>
+                <p className="text-xs font-medium text-foreground">{stat.label}</p>
+                <p className="truncate text-[11px] text-muted-foreground">{stat.hint}</p>
               </div>
             </CardContent>
           </Card>
         ))}
       </div>
 
-      {/* Feature Cards */}
-      <div className="grid md:grid-cols-2 gap-6">
-        {features.map((feature) => (
-          <Link key={feature.href} href={feature.href}>
-            <Card className="h-full hover:border-primary/50 hover:shadow-lg transition-all duration-300 cursor-pointer group">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${feature.color}`}>
-                    <feature.icon className="w-6 h-6" />
+      <div className="mt-10">
+        <div className="mb-5 flex items-end justify-between gap-4">
+          <div>
+            <h2 className="text-lg font-semibold text-foreground">Your study tools</h2>
+            <p className="text-sm text-muted-foreground">Everything you need in one place</p>
+          </div>
+        </div>
+
+        <div className="grid gap-5 md:grid-cols-2">
+          {features.map((feature) => (
+            <Link key={feature.href} href={feature.href} className="group block h-full">
+              <Card className="h-full border-border/80 bg-card transition-all duration-300 hover:border-primary/40 hover:shadow-lg hover:shadow-primary/5">
+                <CardHeader className="pb-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div
+                        className={cn(
+                          'flex size-12 items-center justify-center rounded-xl',
+                          feature.variant === 'primary'
+                            ? 'bg-primary/10 text-primary ring-1 ring-primary/20'
+                            : 'bg-secondary/90 text-secondary-foreground ring-1 ring-secondary/30',
+                        )}
+                      >
+                        <feature.icon className="size-6" />
+                      </div>
+                      <Badge variant="outline" className="text-[10px] font-semibold uppercase tracking-wide">
+                        {feature.badge}
+                      </Badge>
+                    </div>
+                    <ArrowRight className="size-5 shrink-0 text-muted-foreground transition-all group-hover:translate-x-0.5 group-hover:text-primary" />
                   </div>
-                  <ArrowRight className="w-5 h-5 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                </div>
-                <CardTitle className="text-xl mt-4 group-hover:text-primary transition-colors">
-                  {feature.title}
-                </CardTitle>
-                <CardDescription>{feature.description}</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-colors">
-                  Open {feature.title}
-                </Button>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+                  <CardTitle className="mt-4 text-xl transition-colors group-hover:text-primary">
+                    {feature.title}
+                  </CardTitle>
+                  <CardDescription className="text-sm leading-relaxed">
+                    {feature.description}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <span className="inline-flex w-full items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium shadow-xs transition-colors group-hover:border-primary group-hover:bg-primary group-hover:text-primary-foreground">
+                    Open {feature.title}
+                  </span>
+                </CardContent>
+              </Card>
+            </Link>
+          ))}
+        </div>
       </div>
 
-      {/* Tips Section */}
-      <Card className="mt-8 border-primary/20 bg-primary/5">
-        <CardHeader>
-          <CardTitle className="text-lg">Study Tip</CardTitle>
+      <Card className="mt-8 overflow-hidden border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center gap-2 text-base">
+            <Sparkles className="size-4 text-primary" />
+            Study tip
+          </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground">
-            Use the <strong>Lesson Explainer</strong> to understand new concepts, then test your knowledge with the <strong>Quiz Generator</strong>. 
-            Ask the <strong>AI Tutor</strong> any questions, and use the <strong>Study Planner</strong> to stay organized!
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Use the <strong className="text-foreground">Lesson Explainer</strong> to understand new
+            concepts, then test yourself with the <strong className="text-foreground">Quiz Generator</strong>.
+            Stuck? Ask the <strong className="text-foreground">AI Tutor</strong> — and keep on track with
+            the <strong className="text-foreground">Study Planner</strong>.
           </p>
         </CardContent>
       </Card>
-    </div>
+    </DashboardShell>
   )
 }

@@ -1,8 +1,7 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
-import { BookOpen, BrainCircuit, MessageSquare, Calendar, ArrowRight, Sparkles, Target } from 'lucide-react'
-import { AuthModal } from '@/components/auth-modal'
+import { BookOpen, BrainCircuit, MessageSquare, Calendar, ArrowRight, Sparkles, Target, LogIn } from 'lucide-react'
 
 export default function LandingPage() {
   return (
@@ -31,8 +30,13 @@ export default function LandingPage() {
               </Link>
             </div>
             <div className="flex items-center gap-3">
-              <AuthModal />
-              <Link href="/dashboard">
+              <Link href="/login">
+                <Button variant="ghost" className="gap-2">
+                  <LogIn className="size-4" />
+                  Log In
+                </Button>
+              </Link>
+              <Link href="/login">
                 <Button>Get Started</Button>
               </Link>
             </div>
