@@ -4,7 +4,22 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { BrainCircuit, Sparkles, Loader2, CheckCircle, XCircle, RotateCcw, Trophy } from 'lucide-react'
+import {
+  BrainCircuit,
+  Sparkles,
+  Loader2,
+  CheckCircle,
+  XCircle,
+  RotateCcw,
+  Trophy,
+  Upload,
+  FileText,
+  X,
+  Clock3,
+  FileQuestion,
+  BookOpen,
+} from 'lucide-react'
+
 import { cn } from '@/lib/utils'
 import { PageHeader } from '@/components/dashboard/page-header'
 import { DashboardShell } from '@/components/dashboard/dashboard-shell'
@@ -29,28 +44,88 @@ type QuizState = 'setup' | 'taking' | 'results'
 
 export default function QuizzesPage() {
   const [topic, setTopic] = useState('')
-  const [difficulty, setDifficulty] = useState<'easy' | 'medium' | 'hard'>('medium')
-  const [questionCount, setQuestionCount] = useState(5)
+  const [difficulty, setDifficulty] = useState<
+    'easy' | 'medium' | 'hard'
+  >('medium')
+
+  const [questionCount, setQuestionCount] = useState(10)
+
+  const [quizType, setQuizType] = useState('multiple-choice')
+
+  const [timedQuiz, setTimedQuiz] = useState(false)
+
+  const [generateAnswerKey, setGenerateAnswerKey] = useState(true)
+
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+
   const [loading, setLoading] = useState(false)
+
   const [quiz, setQuiz] = useState<QuizResult['quiz'] | null>(null)
-  const [quizState, setQuizState] = useState<QuizState>('setup')
+
+  const [quizState, setQuizState] =
+    useState<QuizState>('setup')
+
   const [currentQuestion, setCurrentQuestion] = useState(0)
-  const [selectedAnswers, setSelectedAnswers] = useState<(number | null)[]>([])
-  const [showExplanation, setShowExplanation] = useState(false)
+
+  const [selectedAnswers, setSelectedAnswers] = useState<
+    (number | null)[]
+  >([])
+
+  const [showExplanation, setShowExplanation] =
+    useState(false)
+
   const [error, setError] = useState('')
 
-  const handleGenerateQuiz = async (e: React.FormEvent) => {
+  const handleFileChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = e.target.files?.[0]
+
+    if (!file) return
+
+    setSelectedFile(file)
+  }
+
+  const removeFile = () => {
+    setSelectedFile(null)
+  }
+
+  const handleGenerateQuiz = async (
+    e: React.FormEvent
+  ) => {
     e.preventDefault()
-    if (!topic.trim()) return
+
+    if (!topic.trim() && !selectedFile) return
 
     setLoading(true)
     setError('')
 
     try {
+      const formData = new FormData()
+
+      formData.append('topic', topic)
+      formData.append('difficulty', difficulty)
+      formData.append(
+        'questionCount',
+        questionCount.toString()
+      )
+
+      formData.append('quizType', quizType)
+
+      formData.append(
+        'generateAnswerKey',
+        generateAnswerKey.toString()
+      )
+
+      formData.append('timedQuiz', timedQuiz.toString())
+
+      if (selectedFile) {
+        formData.append('file', selectedFile)
+      }
+
       const response = await fetch('/api/quizzes', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ topic, difficulty, questionCount }),
+        body: formData,
       })
 
       if (!response.ok) {
@@ -58,29 +133,49 @@ export default function QuizzesPage() {
       }
 
       const data: QuizResult = await response.json()
+
       setQuiz(data.quiz)
-      setSelectedAnswers(new Array(data.quiz.questions.length).fill(null))
+
+      setSelectedAnswers(
+        new Array(data.quiz.questions.length).fill(null)
+      )
+
       setQuizState('taking')
+
       setCurrentQuestion(0)
     } catch (err) {
-      setError('Failed to generate quiz. Please try again.')
+      setError(
+        'Failed to generate quiz. Please try again.'
+      )
+
       console.error(err)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleSelectAnswer = (answerIndex: number) => {
-    if (selectedAnswers[currentQuestion] !== null) return
+  const handleSelectAnswer = (
+    answerIndex: number
+  ) => {
+    if (selectedAnswers[currentQuestion] !== null)
+      return
+
     const newAnswers = [...selectedAnswers]
+
     newAnswers[currentQuestion] = answerIndex
+
     setSelectedAnswers(newAnswers)
+
     setShowExplanation(true)
   }
 
   const handleNextQuestion = () => {
-    if (currentQuestion < (quiz?.questions.length ?? 0) - 1) {
+    if (
+      currentQuestion <
+      (quiz?.questions.length ?? 0) - 1
+    ) {
       setCurrentQuestion(currentQuestion + 1)
+
       setShowExplanation(false)
     } else {
       setQuizState('results')
@@ -94,67 +189,173 @@ export default function QuizzesPage() {
     setCurrentQuestion(0)
     setSelectedAnswers([])
     setShowExplanation(false)
+    setSelectedFile(null)
     setError('')
   }
 
   const calculateScore = () => {
-    if (!quiz) return { correct: 0, total: 0, percentage: 0 }
+    if (!quiz)
+      return {
+        correct: 0,
+        total: 0,
+        percentage: 0,
+      }
+
     const correct = selectedAnswers.filter(
-      (answer, index) => answer === quiz.questions[index].correctAnswer
+      (answer, index) =>
+        answer === quiz.questions[index].correctAnswer
     ).length
+
     return {
       correct,
       total: quiz.questions.length,
-      percentage: Math.round((correct / quiz.questions.length) * 100),
+      percentage: Math.round(
+        (correct / quiz.questions.length) * 100
+      ),
     }
   }
 
-  // Setup State
+  // =========================
+  // SETUP SCREEN
+  // =========================
+
   if (quizState === 'setup') {
     return (
-      <DashboardShell size="md">
+      <DashboardShell size="lg">
         <PageHeader
           title="Quiz Generator"
-          description="Generate custom quizzes on any topic to test your knowledge."
+          description="Upload your lesson files or enter a topic to instantly generate AI-powered quizzes."
           icon={BrainCircuit}
           variant="secondary"
         />
 
-        <Card className="border-border/80 shadow-sm">
-          <CardHeader>
-            <CardTitle>Create Your Quiz</CardTitle>
-            <CardDescription>Choose a topic, difficulty, and number of questions</CardDescription>
+        <Card className="rounded-3xl border border-sky-100 shadow-xl overflow-hidden">
+          <CardHeader className="bg-gradient-to-r from-[#4cb1ff]/10 to-[#f7b801]/10">
+            <CardTitle className="text-3xl flex items-center gap-3">
+              <BrainCircuit className="w-8 h-8 text-[#4cb1ff]" />
+              AI Quiz Generator
+            </CardTitle>
+
+            <CardDescription className="text-base">
+              Generate quizzes from files, notes, or any study topic.
+            </CardDescription>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleGenerateQuiz} className="space-y-6">
+
+          <CardContent className="p-6">
+            <form
+              onSubmit={handleGenerateQuiz}
+              className="space-y-6"
+            >
+              {/* Topic */}
               <div>
-                <label htmlFor="topic" className="block text-sm font-medium text-foreground mb-2">
+                <label className="block text-sm font-semibold mb-2">
                   Quiz Topic
                 </label>
+
                 <Input
-                  id="topic"
-                  placeholder="e.g., World War II, Calculus, Python Programming"
+                  placeholder="e.g., Calculus, World War II, Python"
                   value={topic}
-                  onChange={(e) => setTopic(e.target.value)}
+                  onChange={(e) =>
+                    setTopic(e.target.value)
+                  }
                   disabled={loading}
+                  className="h-12 rounded-xl"
                 />
               </div>
 
+              {/* Upload Section */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
+                <label className="block text-sm font-semibold mb-3">
+                  Upload Lesson File
+                </label>
+
+                <div className="border-2 border-dashed border-[#4cb1ff]/40 rounded-3xl p-8 text-center bg-sky-50/40 hover:bg-sky-50 transition">
+                  <div className="flex flex-col items-center gap-4">
+                    <div className="bg-[#4cb1ff]/10 p-4 rounded-full">
+                      <Upload className="w-8 h-8 text-[#4cb1ff]" />
+                    </div>
+
+                    <div>
+                      <p className="text-lg font-semibold">
+                        Drag & Drop your lesson file
+                      </p>
+
+                      <p className="text-sm text-muted-foreground">
+                        PDF, DOCX, PPTX, TXT, or Images
+                      </p>
+                    </div>
+
+                    <label>
+                      <input
+                        type="file"
+                        className="hidden"
+                        accept=".pdf,.doc,.docx,.ppt,.pptx,.txt,image/*"
+                        onChange={handleFileChange}
+                      />
+
+                      <div className="cursor-pointer inline-flex items-center gap-2 bg-[#4cb1ff] text-white px-5 py-2 rounded-xl hover:opacity-90">
+                        <Upload className="w-4 h-4" />
+                        Attach File
+                      </div>
+                    </label>
+                  </div>
+                </div>
+
+                {/* File Preview */}
+                {selectedFile && (
+                  <div className="mt-4 border rounded-2xl p-4 flex items-center justify-between bg-muted/40">
+                    <div className="flex items-center gap-3">
+                      <div className="bg-[#f7b801]/15 p-3 rounded-xl">
+                        <FileText className="w-5 h-5 text-[#f7b801]" />
+                      </div>
+
+                      <div>
+                        <p className="font-medium">
+                          {selectedFile.name}
+                        </p>
+
+                        <p className="text-sm text-muted-foreground">
+                          {(
+                            selectedFile.size / 1024
+                          ).toFixed(1)}{' '}
+                          KB
+                        </p>
+                      </div>
+                    </div>
+
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="ghost"
+                      onClick={removeFile}
+                    >
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                )}
+              </div>
+
+              {/* Difficulty */}
+              <div>
+                <label className="block text-sm font-semibold mb-3">
                   Difficulty Level
                 </label>
+
                 <div className="grid grid-cols-3 gap-3">
-                  {(['easy', 'medium', 'hard'] as const).map((level) => (
+                  {(
+                    ['easy', 'medium', 'hard'] as const
+                  ).map((level) => (
                     <button
                       key={level}
                       type="button"
-                      onClick={() => setDifficulty(level)}
+                      onClick={() =>
+                        setDifficulty(level)
+                      }
                       className={cn(
-                        'py-3 px-4 rounded-lg border text-sm font-medium transition-colors capitalize',
+                        'py-4 rounded-2xl font-medium capitalize transition',
                         difficulty === level
-                          ? 'bg-primary text-primary-foreground border-primary'
-                          : 'bg-background text-foreground border-border hover:border-primary/50'
+                          ? 'bg-[#4cb1ff] text-white shadow-lg'
+                          : 'bg-background border hover:border-[#4cb1ff]/40'
                       )}
                     >
                       {level}
@@ -163,41 +364,135 @@ export default function QuizzesPage() {
                 </div>
               </div>
 
+              {/* Question Slider */}
               <div>
-                <label className="block text-sm font-medium text-foreground mb-2">
-                  Number of Questions: {questionCount}
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-semibold">
+                    Number of Questions
+                  </label>
+
+                  <span className="text-sm font-medium text-[#4cb1ff]">
+                    {questionCount} Questions Selected
+                  </span>
+                </div>
+
                 <input
                   type="range"
-                  min="3"
-                  max="10"
+                  min="5"
+                  max="60"
                   value={questionCount}
-                  onChange={(e) => setQuestionCount(parseInt(e.target.value))}
-                  className="w-full accent-primary"
-                  disabled={loading}
+                  onChange={(e) =>
+                    setQuestionCount(
+                      parseInt(e.target.value)
+                    )
+                  }
+                  className="w-full accent-[#4cb1ff]"
                 />
+
                 <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                  <span>3</span>
-                  <span>10</span>
+                  <span>5</span>
+                  <span>60</span>
                 </div>
               </div>
 
-              {error && <div className="text-destructive text-sm">{error}</div>}
+              {/* Quiz Type */}
+              <div>
+                <label className="block text-sm font-semibold mb-3">
+                  Quiz Type
+                </label>
 
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  {[
+                    'multiple-choice',
+                    'identification',
+                    'true-false',
+                    'mixed',
+                  ].map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() =>
+                        setQuizType(type)
+                      }
+                      className={cn(
+                        'rounded-2xl py-3 border text-sm font-medium transition capitalize',
+                        quizType === type
+                          ? 'bg-[#f7b801] text-black border-[#f7b801]'
+                          : 'hover:border-[#f7b801]'
+                      )}
+                    >
+                      {type.replace('-', ' ')}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Toggles */}
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="flex items-center justify-between border rounded-2xl p-4">
+                  <div className="flex items-center gap-2">
+                    <Clock3 className="w-5 h-5 text-[#4cb1ff]" />
+                    <span className="font-medium">
+                      Timed Quiz
+                    </span>
+                  </div>
+
+                  <input
+                    type="checkbox"
+                    checked={timedQuiz}
+                    onChange={() =>
+                      setTimedQuiz(!timedQuiz)
+                    }
+                    className="w-5 h-5"
+                  />
+                </div>
+
+                <div className="flex items-center justify-between border rounded-2xl p-4">
+                  <div className="flex items-center gap-2">
+                    <BookOpen className="w-5 h-5 text-[#f7b801]" />
+                    <span className="font-medium">
+                      Generate Answer Key
+                    </span>
+                  </div>
+
+                  <input
+                    type="checkbox"
+                    checked={generateAnswerKey}
+                    onChange={() =>
+                      setGenerateAnswerKey(
+                        !generateAnswerKey
+                      )
+                    }
+                    className="w-5 h-5"
+                  />
+                </div>
+              </div>
+
+              {/* Error */}
+              {error && (
+                <div className="text-red-500 text-sm font-medium">
+                  {error}
+                </div>
+              )}
+
+              {/* Submit */}
               <Button
                 type="submit"
-                className="w-full gap-2"
-                disabled={loading || !topic.trim()}
+                disabled={
+                  loading ||
+                  (!topic.trim() && !selectedFile)
+                }
+                className="w-full h-14 rounded-2xl text-lg font-semibold bg-gradient-to-r from-[#4cb1ff] to-[#6bc7ff] hover:opacity-90 shadow-lg"
               >
                 {loading ? (
                   <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Generating Quiz...
+                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
+                    AI is generating your quiz...
                   </>
                 ) : (
                   <>
-                    <Sparkles className="w-4 h-4" />
-                    Generate Quiz
+                    <Sparkles className="w-5 h-5 mr-2" />
+                    Generate Quiz Fast
                   </>
                 )}
               </Button>
@@ -208,95 +503,119 @@ export default function QuizzesPage() {
     )
   }
 
-  // Taking Quiz State
+  // =========================
+  // TAKING QUIZ
+  // =========================
+
   if (quizState === 'taking' && quiz) {
     const question = quiz.questions[currentQuestion]
-    const selectedAnswer = selectedAnswers[currentQuestion]
-    const isCorrect = selectedAnswer === question.correctAnswer
+
+    const selectedAnswer =
+      selectedAnswers[currentQuestion]
+
+    const isCorrect =
+      selectedAnswer === question.correctAnswer
 
     return (
       <DashboardShell size="md">
         <div className="mb-6">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium text-muted-foreground">
-              Question {currentQuestion + 1} of {quiz.questions.length}
+          <div className="flex justify-between mb-2">
+            <span className="text-sm font-medium">
+              Question {currentQuestion + 1} of{' '}
+              {quiz.questions.length}
             </span>
-            <span className="text-sm font-medium text-muted-foreground capitalize">
+
+            <span className="capitalize text-sm">
               {quiz.difficulty}
             </span>
           </div>
-          <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+
+          <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
             <div
-              className="h-full bg-primary transition-all duration-300"
-              style={{ width: `${((currentQuestion + 1) / quiz.questions.length) * 100}%` }}
+              className="h-full bg-[#4cb1ff] transition-all"
+              style={{
+                width: `${
+                  ((currentQuestion + 1) /
+                    quiz.questions.length) *
+                  100
+                }%`,
+              }}
             />
           </div>
         </div>
 
-        <Card className="border-border/80 shadow-sm">
+        <Card className="rounded-3xl shadow-lg">
           <CardHeader>
-            <CardTitle className="text-xl leading-relaxed">{question.question}</CardTitle>
+            <CardTitle className="text-2xl leading-relaxed">
+              {question.question}
+            </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
+
+          <CardContent className="space-y-4">
             {question.options.map((option, index) => {
-              const isSelected = selectedAnswer === index
-              const isCorrectAnswer = index === question.correctAnswer
-              const showResult = selectedAnswer !== null
+              const isSelected =
+                selectedAnswer === index
+
+              const isCorrectAnswer =
+                index === question.correctAnswer
+
+              const showResult =
+                selectedAnswer !== null
 
               return (
                 <button
                   key={index}
-                  onClick={() => handleSelectAnswer(index)}
+                  onClick={() =>
+                    handleSelectAnswer(index)
+                  }
                   disabled={selectedAnswer !== null}
                   className={cn(
-                    'w-full p-4 rounded-lg border text-left transition-all',
-                    !showResult && 'hover:border-primary/50 hover:bg-muted/50',
-                    showResult && isCorrectAnswer && 'bg-green-500/10 border-green-500 text-green-700',
-                    showResult && isSelected && !isCorrectAnswer && 'bg-red-500/10 border-red-500 text-red-700',
-                    !showResult && 'bg-background border-border'
+                    'w-full p-4 rounded-2xl border text-left transition-all',
+                    !showResult &&
+                      'hover:border-[#4cb1ff]',
+                    showResult &&
+                      isCorrectAnswer &&
+                      'bg-green-500/10 border-green-500',
+                    showResult &&
+                      isSelected &&
+                      !isCorrectAnswer &&
+                      'bg-red-500/10 border-red-500'
                   )}
                 >
                   <div className="flex items-center gap-3">
-                    <span className={cn(
-                      'w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium',
-                      showResult && isCorrectAnswer && 'bg-green-500 text-white',
-                      showResult && isSelected && !isCorrectAnswer && 'bg-red-500 text-white',
-                      !showResult && 'bg-muted text-muted-foreground'
-                    )}>
-                      {showResult && isCorrectAnswer ? (
-                        <CheckCircle className="w-5 h-5" />
-                      ) : showResult && isSelected ? (
-                        <XCircle className="w-5 h-5" />
-                      ) : (
-                        String.fromCharCode(65 + index)
-                      )}
-                    </span>
-                    <span className={cn(
-                      'flex-1',
-                      showResult && isCorrectAnswer && 'font-medium'
-                    )}>
-                      {option}
-                    </span>
+                    <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center">
+                      {String.fromCharCode(65 + index)}
+                    </div>
+
+                    <span>{option}</span>
                   </div>
                 </button>
               )
             })}
 
             {showExplanation && (
-              <div className={cn(
-                'mt-4 p-4 rounded-lg',
-                isCorrect ? 'bg-green-500/10 border border-green-500/30' : 'bg-primary/10 border border-primary/30'
-              )}>
-                <p className="font-medium mb-1">
-                  {isCorrect ? 'Correct!' : 'Explanation:'}
+              <div className="p-4 rounded-2xl border bg-primary/5">
+                <p className="font-semibold mb-1">
+                  {isCorrect
+                    ? 'Correct!'
+                    : 'Explanation'}
                 </p>
-                <p className="text-sm text-muted-foreground">{question.explanation}</p>
+
+                <p className="text-sm text-muted-foreground">
+                  {question.explanation}
+                </p>
               </div>
             )}
 
             {selectedAnswer !== null && (
-              <Button onClick={handleNextQuestion} className="w-full mt-4">
-                {currentQuestion < quiz.questions.length - 1 ? 'Next Question' : 'See Results'}
+              <Button
+                onClick={handleNextQuestion}
+                className="w-full rounded-2xl h-12"
+              >
+                {currentQuestion <
+                quiz.questions.length - 1
+                  ? 'Next Question'
+                  : 'See Results'}
               </Button>
             )}
           </CardContent>
@@ -305,47 +624,75 @@ export default function QuizzesPage() {
     )
   }
 
-  // Results State
+  // =========================
+  // RESULTS
+  // =========================
+
   if (quizState === 'results' && quiz) {
     const score = calculateScore()
 
     return (
       <DashboardShell size="md">
-        <Card className="border-border/80 shadow-sm">
-          <CardHeader className="text-center pb-2">
-            <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-              <Trophy className="w-10 h-10 text-primary" />
+        <Card className="rounded-3xl shadow-xl">
+          <CardHeader className="text-center">
+            <div className="w-24 h-24 mx-auto rounded-full bg-[#4cb1ff]/10 flex items-center justify-center mb-4">
+              <Trophy className="w-12 h-12 text-[#4cb1ff]" />
             </div>
-            <CardTitle className="text-2xl">Quiz Complete!</CardTitle>
-            <CardDescription>{quiz.title}</CardDescription>
+
+            <CardTitle className="text-3xl">
+              Quiz Complete!
+            </CardTitle>
+
+            <CardDescription>
+              {quiz.title}
+            </CardDescription>
           </CardHeader>
-          <CardContent className="text-center space-y-6">
-            <div className="py-6">
-              <p className="text-5xl font-bold text-primary">{score.percentage}%</p>
+
+          <CardContent className="space-y-6 text-center">
+            <div>
+              <p className="text-6xl font-bold text-[#4cb1ff]">
+                {score.percentage}%
+              </p>
+
               <p className="text-muted-foreground mt-2">
-                You got {score.correct} out of {score.total} questions correct
+                You got {score.correct} out of{' '}
+                {score.total} correct
               </p>
             </div>
 
-            <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
+            <div className="w-full h-4 bg-muted rounded-full overflow-hidden">
               <div
-                className="h-full bg-primary transition-all duration-500"
-                style={{ width: `${score.percentage}%` }}
+                className="h-full bg-[#4cb1ff]"
+                style={{
+                  width: `${score.percentage}%`,
+                }}
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-4">
-              <Button variant="outline" onClick={handleReset} className="gap-2">
+            <div className="grid grid-cols-2 gap-4">
+              <Button
+                variant="outline"
+                onClick={handleReset}
+                className="rounded-2xl gap-2"
+              >
                 <RotateCcw className="w-4 h-4" />
                 New Quiz
               </Button>
-              <Button onClick={() => {
-                setQuizState('taking')
-                setCurrentQuestion(0)
-                setSelectedAnswers(new Array(quiz.questions.length).fill(null))
-                setShowExplanation(false)
-              }} className="gap-2">
-                <BrainCircuit className="w-4 h-4" />
+
+              <Button
+                onClick={() => {
+                  setQuizState('taking')
+                  setCurrentQuestion(0)
+                  setSelectedAnswers(
+                    new Array(
+                      quiz.questions.length
+                    ).fill(null)
+                  )
+                  setShowExplanation(false)
+                }}
+                className="rounded-2xl gap-2"
+              >
+                <FileQuestion className="w-4 h-4" />
                 Retry Quiz
               </Button>
             </div>

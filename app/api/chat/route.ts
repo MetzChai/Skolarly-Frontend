@@ -64,8 +64,8 @@ export async function POST(request: NextRequest) {
       messages,
     })
 
-    const response = await result.toDataStreamResponse()
-    
+    const response = await result.toTextStreamResponse()
+
     return response
   } catch (error) {
     console.error('Chat error:', error)

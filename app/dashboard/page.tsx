@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils'
 
 const features = [
   {
-    title: 'Lesson Explainer',
+    title: 'AI Lesson Explainer',
     description: 'Get AI-powered explanations for any topic or lesson content.',
     icon: BookOpen,
     href: '/dashboard/lessons',
@@ -27,7 +27,7 @@ const features = [
     badge: 'Understand',
   },
   {
-    title: 'Quiz Generator',
+    title: 'AI Quiz Generator',
     description: 'Create custom quizzes to test your knowledge on any subject.',
     icon: BrainCircuit,
     href: '/dashboard/quizzes',
@@ -43,7 +43,7 @@ const features = [
     badge: 'Ask',
   },
   {
-    title: 'Study Planner',
+    title: 'AI Study Planner',
     description: 'Create AI-generated study schedules for your goals.',
     icon: Calendar,
     href: '/dashboard/planner',
@@ -86,7 +86,7 @@ function getGreeting() {
 export default function DashboardPage() {
   return (
     <DashboardShell>
-      <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-gradient-to-br from-primary/10 via-card to-secondary/10 p-6 sm:p-8">
+      <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-linear-to-br from-primary/10 via-card to-secondary/10 p-6 sm:p-8">
         <div className="absolute -top-12 -right-12 size-40 rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute -bottom-8 -left-8 size-32 rounded-full bg-secondary/15 blur-2xl" />
         <div className="relative">

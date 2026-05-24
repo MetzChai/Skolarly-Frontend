@@ -7,6 +7,8 @@ import { Input } from '@/components/ui/input'
 import { MessageSquare, Send, Loader2, User, Bot, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import ReactMarkdown from 'react-markdown'
+import axiosInstance from "@/lib/axios";
+
 
 interface Message {
   id: string
@@ -14,11 +16,12 @@ interface Message {
   content: string
 }
 
+const CHAT_STORAGE_KEY = "skolarly_chat_history";
+
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
-  const [sessionId, setSessionId] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -29,6 +32,24 @@ export default function ChatPage() {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  useEffect(() => {
+    const saved = localStorage.getItem(CHAT_STORAGE_KEY);
+    if (saved) {
+      try {
+        setMessages(JSON.parse(saved));
+      } catch (e) {
+        console.error("Failed to parse chat history", e);
+      }
+    }
+  }, []);
+
+  // Save history to localStorage whenever it changes
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
+    }
+  }, [messages]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -45,66 +66,25 @@ export default function ChatPage() {
     setLoading(true)
 
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message: userMessage.content, sessionId }),
+      const response = await axiosInstance.post('/api/ai/v1/ask', {
+        question: input.trim(),
+        history: [],
       })
+      console.log(response);
+      console.log(messages);
 
-      if (!response.ok) {
+      if (response.data.error) {
         throw new Error('Failed to send message')
       }
-
-      const reader = response.body?.getReader()
-      const decoder = new TextDecoder()
 
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: '',
+        content: response.data.data.answer,
       }
 
       setMessages((prev) => [...prev, assistantMessage])
-
-      let fullContent = ''
-      const newSessionId = sessionId
-
-      if (reader) {
-        while (true) {
-          const { done, value } = await reader.read()
-          if (done) break
-
-          const chunk = decoder.decode(value)
-          const lines = chunk.split('\n')
-
-          for (const line of lines) {
-            if (line.startsWith('0:')) {
-              const textContent = line.slice(2).replace(/^"|"$/g, '')
-              fullContent += textContent
-              setMessages((prev) =>
-                prev.map((msg) =>
-                  msg.id === assistantMessage.id ? { ...msg, content: fullContent } : msg,
-                ),
-              )
-            }
-          }
-        }
-      }
-
-      if (fullContent && (sessionId || newSessionId)) {
-        await fetch('/api/chat/save', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            sessionId: sessionId || newSessionId,
-            content: fullContent,
-          }),
-        })
-      }
-
-      if (!sessionId) {
-        setSessionId(Date.now().toString())
-      }
+      setLoading(false);
     } catch (error) {
       console.error('Chat error:', error)
       setMessages((prev) => [
@@ -115,9 +95,7 @@ export default function ChatPage() {
           content: "I'm sorry, I encountered an error. Please try again.",
         },
       ])
-    } finally {
-      setLoading(false)
-      inputRef.current?.focus()
+      setLoading(false);
     }
   }
 
