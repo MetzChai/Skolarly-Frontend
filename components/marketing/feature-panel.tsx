@@ -15,7 +15,7 @@ export default function FeaturesSection() {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
           <FeatureCard
             icon={<BookOpen className="w-6 h-6" />}
-            title="AI   Lesson Explainer"
+            title="AI Lesson Explainer"
             description="Upload any lesson content and get clear, detailed explanations with summaries and key concepts."
             href="/study-hub/lesson-lab"
             color="primary"

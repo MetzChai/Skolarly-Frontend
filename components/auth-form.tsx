@@ -58,7 +58,7 @@ export function AuthForm({
   return (
     <div className={cn('flex flex-col', className)}>
       {showBranding && (
-        <div className="relative overflow-hidden bg-gradient-to-br from-primary/15 via-primary/5 to-secondary/10 px-6 pt-8 pb-6">
+        <div className="relative overflow-hidden bg-linear-to-br from-primary/15 via-primary/5 to-secondary/10 px-6 pt-8 pb-6">
           <div className="absolute -top-8 -right-8 h-32 w-32 rounded-full bg-primary/10 blur-2xl" />
           <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-secondary/20 blur-2xl" />
           <div className="relative flex flex-col items-center text-center">
