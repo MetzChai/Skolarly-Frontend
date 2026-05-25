@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { AuthForm } from '@/components/auth-form'
+import { AuthForm } from '@/components/common/auth-form'
 import { ArrowLeft } from 'lucide-react'
 
 export default function LoginPage() {
