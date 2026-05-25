@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { MessageSquare, Send, Loader2, User, Bot, Sparkles } from 'lucide-react'
+import { Send, Loader2, User, Bot, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import ReactMarkdown from 'react-markdown'
 import axiosInstance from "@/lib/axios";
@@ -66,7 +66,7 @@ export default function ChatPage() {
     setLoading(true)
 
     try {
-      const response = await axiosInstance.post('/api/ai/v1/ask', {
+      const response = await axiosInstance.post('/api/ai/chat', {
         question: input.trim(),
         history: [],
       })

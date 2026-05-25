@@ -14,7 +14,7 @@ export default function CTASection() {
           Join students who are already learning smarter with Skolarly.
         </p>
         <div className="mt-10">
-          <Link href="/dashboard">
+          <Link href="/study-hub">
             <Button size="lg" className="gap-2 px-8">
               Get Started Free <ArrowRight className="w-4 h-4" />
             </Button>

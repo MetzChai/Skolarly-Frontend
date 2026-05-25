@@ -7,8 +7,8 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Calendar, Sparkles, Loader2, Clock, CheckCircle, Circle, CalendarDays } from 'lucide-react'
 import { cn } from '@/lib/utils'
-import { PageHeader } from '@/components/dashboard/page-header'
-import { DashboardShell } from '@/components/dashboard/dashboard-shell'
+import { PageHeader } from '@/components/layout/page-header'
+import { WorkspaceShell } from '@/components/layout/workspace-shell'
 
 interface StudyTask {
   id: string
@@ -54,7 +54,7 @@ export default function PlannerPage() {
     setError('')
 
     try {
-      const response = await fetch('/api/study-plans', {
+      const response = await fetch('/api/planner', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -84,7 +84,7 @@ export default function PlannerPage() {
 
   const handleToggleTask = async (taskId: string, isCompleted: boolean) => {
     try {
-      await fetch(`/api/tasks/${taskId}`, {
+      await fetch(`/api/planner/tasks/${taskId}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ is_completed: !isCompleted }),
@@ -147,7 +147,7 @@ export default function PlannerPage() {
   // Create View
   if (viewState === 'create') {
     return (
-      <DashboardShell size="md">
+      <WorkspaceShell size="md">
         <PageHeader
           title="Study Planner"
           description="Generate an AI-powered study schedule tailored to your goals and available time."
@@ -266,7 +266,7 @@ export default function PlannerPage() {
             </form>
           </CardContent>
         </Card>
-      </DashboardShell>
+      </WorkspaceShell>
     )
   }
 
@@ -275,7 +275,7 @@ export default function PlannerPage() {
     const groupedTasks = groupTasksByDate(tasks)
 
     return (
-      <DashboardShell size="lg">
+      <WorkspaceShell size="lg">
         <PageHeader
           title={plan.plan.title}
           description={`${new Date(plan.plan.start_date).toLocaleDateString()} – ${new Date(plan.plan.end_date).toLocaleDateString()}`}
@@ -361,7 +361,7 @@ export default function PlannerPage() {
               </div>
             ))}
         </div>
-      </DashboardShell>
+      </WorkspaceShell>
     )
   }
 

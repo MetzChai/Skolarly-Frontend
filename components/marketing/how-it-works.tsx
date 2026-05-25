@@ -1,4 +1,4 @@
-import StepCard from './StepCard'
+import StepCard from './step-card'
 
 export default function HowItWorksSection() {
   return (

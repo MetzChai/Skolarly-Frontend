@@ -8,8 +8,6 @@ import {
   BrainCircuit,
   Sparkles,
   Loader2,
-  CheckCircle,
-  XCircle,
   RotateCcw,
   Trophy,
   Upload,
@@ -21,8 +19,8 @@ import {
 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
-import { PageHeader } from '@/components/dashboard/page-header'
-import { DashboardShell } from '@/components/dashboard/dashboard-shell'
+import { PageHeader } from '@/components/layout/page-header'
+import { WorkspaceShell } from '@/components/layout/workspace-shell'
 
 interface QuizQuestion {
   question: string
@@ -123,7 +121,7 @@ export default function QuizzesPage() {
         formData.append('file', selectedFile)
       }
 
-      const response = await fetch('/api/quizzes', {
+      const response = await fetch('/api/ai/quiz', {
         method: 'POST',
         body: formData,
       })
@@ -221,7 +219,7 @@ export default function QuizzesPage() {
 
   if (quizState === 'setup') {
     return (
-      <DashboardShell size="lg">
+      <WorkspaceShell size="lg">
         <PageHeader
           title="Quiz Generator"
           description="Upload your lesson files or enter a topic to instantly generate AI-powered quizzes."
@@ -499,7 +497,7 @@ export default function QuizzesPage() {
             </form>
           </CardContent>
         </Card>
-      </DashboardShell>
+      </WorkspaceShell>
     )
   }
 
@@ -517,7 +515,7 @@ export default function QuizzesPage() {
       selectedAnswer === question.correctAnswer
 
     return (
-      <DashboardShell size="md">
+      <WorkspaceShell size="md">
         <div className="mb-6">
           <div className="flex justify-between mb-2">
             <span className="text-sm font-medium">
@@ -620,7 +618,7 @@ export default function QuizzesPage() {
             )}
           </CardContent>
         </Card>
-      </DashboardShell>
+      </WorkspaceShell>
     )
   }
 
@@ -632,7 +630,7 @@ export default function QuizzesPage() {
     const score = calculateScore()
 
     return (
-      <DashboardShell size="md">
+      <WorkspaceShell size="md">
         <Card className="rounded-3xl shadow-xl">
           <CardHeader className="text-center">
             <div className="w-24 h-24 mx-auto rounded-full bg-[#4cb1ff]/10 flex items-center justify-center mb-4">
@@ -698,7 +696,7 @@ export default function QuizzesPage() {
             </div>
           </CardContent>
         </Card>
-      </DashboardShell>
+      </WorkspaceShell>
     )
   }
 

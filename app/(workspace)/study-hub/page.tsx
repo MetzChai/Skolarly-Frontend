@@ -14,7 +14,7 @@ import {
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { DashboardShell } from '@/components/dashboard/dashboard-shell'
+import { WorkspaceShell } from '@/components/layout/workspace-shell'
 import { cn } from '@/lib/utils'
 
 const features = [
@@ -22,7 +22,7 @@ const features = [
     title: 'AI Lesson Explainer',
     description: 'Get AI-powered explanations for any topic or lesson content.',
     icon: BookOpen,
-    href: '/dashboard/lessons',
+    href: '/study-hub/lesson-lab',
     variant: 'primary' as const,
     badge: 'Understand',
   },
@@ -30,7 +30,7 @@ const features = [
     title: 'AI Quiz Generator',
     description: 'Create custom quizzes to test your knowledge on any subject.',
     icon: BrainCircuit,
-    href: '/dashboard/quizzes',
+    href: '/study-hub/quiz-lab',
     variant: 'secondary' as const,
     badge: 'Practice',
   },
@@ -38,7 +38,7 @@ const features = [
     title: 'AI Tutor Chat',
     description: 'Chat with an intelligent tutor for personalized help.',
     icon: MessageSquare,
-    href: '/dashboard/chat',
+    href: '/study-hub/tutor',
     variant: 'primary' as const,
     badge: 'Ask',
   },
@@ -46,7 +46,7 @@ const features = [
     title: 'AI Study Planner',
     description: 'Create AI-generated study schedules for your goals.',
     icon: Calendar,
-    href: '/dashboard/planner',
+    href: '/study-hub/planner',
     variant: 'secondary' as const,
     badge: 'Plan',
   },
@@ -83,9 +83,9 @@ function getGreeting() {
   return 'Good evening'
 }
 
-export default function DashboardPage() {
+export default function StudyHubPage() {
   return (
-    <DashboardShell>
+    <WorkspaceShell>
       <div className="relative overflow-hidden rounded-2xl border border-border/80 bg-linear-to-br from-primary/10 via-card to-secondary/10 p-6 sm:p-8">
         <div className="absolute -top-12 -right-12 size-40 rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute -bottom-8 -left-8 size-32 rounded-full bg-secondary/15 blur-2xl" />
@@ -102,13 +102,13 @@ export default function DashboardPage() {
             week.
           </p>
           <div className="mt-6 flex flex-wrap gap-3">
-            <Link href="/dashboard/chat">
+            <Link href="/study-hub/tutor">
               <Button className="gap-2">
                 <Zap className="size-4" />
                 Start with AI Tutor
               </Button>
             </Link>
-            <Link href="/dashboard/planner">
+            <Link href="/study-hub/planner">
               <Button variant="outline">Plan my week</Button>
             </Link>
           </div>
@@ -205,6 +205,6 @@ export default function DashboardPage() {
           </p>
         </CardContent>
       </Card>
-    </DashboardShell>
+    </WorkspaceShell>
   )
 }

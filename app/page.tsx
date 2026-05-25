@@ -1,9 +1,9 @@
-import Navbar from '@/app/landing/Navbar'
-import HeroSection from '@/app/landing/HeroSection'
-import FeaturesSection from '@/app/landing/FeaturesSection'
-import HowItWorksSection from '@/app/landing/HowItWorksSection'
-import CTASection from '@/app/landing/CTASection'
-import Footer from '@/app/landing/Footer'
+import Navbar from '@/components/marketing/landing-navbar'
+import HeroSection from '@/components/marketing/hero-banner'
+import FeaturesSection from '@/components/marketing/feature-panel'
+import HowItWorksSection from '@/components/marketing/how-it-works'
+import CTASection from '@/components/marketing/cta-section'
+import Footer from '@/components/layout/site-footer'
 
 export default function LandingPage() {
   return (

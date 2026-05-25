@@ -1,5 +1,5 @@
 import { BookOpen, BrainCircuit, MessageSquare, Calendar } from 'lucide-react'
-import FeatureCard from './FeatureCard'
+import FeatureCard from './feature-card'
 
 export default function FeaturesSection() {
   return (
@@ -17,28 +17,28 @@ export default function FeaturesSection() {
             icon={<BookOpen className="w-6 h-6" />}
             title="AI   Lesson Explainer"
             description="Upload any lesson content and get clear, detailed explanations with summaries and key concepts."
-            href="/dashboard/lessons"
+            href="/study-hub/lesson-lab"
             color="primary"
           />
           <FeatureCard
             icon={<BrainCircuit className="w-6 h-6" />}
             title="AI Quiz Generator"
             description="Generate customized quizzes on any topic with adjustable difficulty and instant feedback."
-            href="/dashboard/quizzes"
+            href="/study-hub/quiz-lab"
             color="secondary"
           />
           <FeatureCard
             icon={<MessageSquare className="w-6 h-6" />}
             title="AI Tutor Chat"
             description="Chat with an intelligent tutor that can explain concepts, answer questions, and help with homework."
-            href="/dashboard/chat"
+            href="/study-hub/tutor"
             color="primary"
           />
           <FeatureCard
             icon={<Calendar className="w-6 h-6" />}
             title="AI Study Planner"
             description="Create AI-generated study schedules tailored to your goals and available time."
-            href="/dashboard/planner"
+            href="/study-hub/planner"
             color="secondary"
           />
         </div>

@@ -7,9 +7,9 @@ import { ArrowLeft, Menu, X, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { useState } from 'react'
-import { dashboardNavItems, getPageMeta } from '@/lib/dashboard-nav'
+import { studyNavItems, getPageMeta } from '@/lib/study-nav'
 
-export default function DashboardLayout({
+export default function StudyHubLayout({
   children,
 }: {
   children: React.ReactNode
@@ -17,7 +17,7 @@ export default function DashboardLayout({
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const pageMeta = getPageMeta(pathname)
-  const isChat = pathname === '/dashboard/chat'
+  const isChat = pathname === '/study-hub/tutor'
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -69,10 +69,10 @@ export default function DashboardLayout({
             Study tools
           </p>
 
-          {dashboardNavItems.map((item) => {
+          {studyNavItems.map((item) => {
             const isActive =
               pathname === item.href ||
-              (item.href !== '/dashboard' && pathname.startsWith(item.href))
+              (item.href !== '/study-hub' && pathname.startsWith(item.href))
 
             return (
               <Link
@@ -103,7 +103,7 @@ export default function DashboardLayout({
 
         <div className="border-t border-sidebar-border p-3">
           <Link
-            href="/dashboard/chat"
+            href="/study-hub/tutor"
             onClick={() => setSidebarOpen(false)}
             className="block rounded-xl bg-gradient-to-br from-primary/15 via-primary/5 to-secondary/10 p-4 ring-1 ring-primary/15 transition-shadow hover:shadow-md"
           >
@@ -135,7 +135,7 @@ export default function DashboardLayout({
             </p>
           </div>
 
-          <Link href="/dashboard/chat" className="hidden sm:block">
+          <Link href="/study-hub/tutor" className="hidden sm:block">
             <Button size="sm" variant="outline" className="gap-1.5">
               <Sparkles className="size-3.5" />
               Ask tutor

@@ -14,33 +14,33 @@ export interface NavItem {
   description: string
 }
 
-export const dashboardNavItems: NavItem[] = [
+export const studyNavItems: NavItem[] = [
   {
-    href: '/dashboard',
-    label: 'Dashboard',
+    href: '/study-hub',
+    label: 'Study Hub',
     icon: Home,
     description: 'Overview and quick access',
   },
   {
-    href: '/dashboard/lessons',
+    href: '/study-hub/lesson-lab',
     label: 'Lessons',
     icon: BookOpen,
     description: 'AI lesson explanations',
   },
   {
-    href: '/dashboard/quizzes',
+    href: '/study-hub/quiz-lab',
     label: 'Quizzes',
     icon: BrainCircuit,
     description: 'Generate practice quizzes',
   },
   {
-    href: '/dashboard/chat',
+    href: '/study-hub/tutor',
     label: 'AI Tutor',
     icon: MessageSquare,
     description: 'Chat with your study tutor',
   },
   {
-    href: '/dashboard/planner',
+    href: '/study-hub/planner',
     label: 'Study Planner',
     icon: Calendar,
     description: 'Personalized study schedules',
@@ -48,13 +48,13 @@ export const dashboardNavItems: NavItem[] = [
 ]
 
 export function getPageMeta(pathname: string): { title: string; description: string } {
-  const item = dashboardNavItems.find(
+  const item = studyNavItems.find(
     (nav) =>
       pathname === nav.href ||
-      (nav.href !== '/dashboard' && pathname.startsWith(nav.href)),
+      (nav.href !== '/study-hub' && pathname.startsWith(nav.href)),
   )
   if (item) {
     return { title: item.label, description: item.description }
   }
-  return { title: 'Dashboard', description: 'Your AI study companion' }
+  return { title: 'Study Hub', description: 'Your AI study companion' }
 }

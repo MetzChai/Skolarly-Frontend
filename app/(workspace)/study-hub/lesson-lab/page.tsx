@@ -18,8 +18,8 @@ import {
   FileQuestion,
 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
-import { PageHeader } from '@/components/dashboard/page-header'
-import { DashboardShell } from '@/components/dashboard/dashboard-shell'
+import { PageHeader } from '@/components/layout/page-header'
+import { WorkspaceShell } from '@/components/layout/workspace-shell'
 
 interface LessonResult {
   explanation: string
@@ -79,7 +79,7 @@ export default function LessonsPage() {
         formData.append('file', selectedFile)
       }
 
-      const response = await fetch('/api/lessons', {
+      const response = await fetch('/api/ai/lesson', {
         method: 'POST',
         body: formData,
       })
@@ -107,7 +107,7 @@ export default function LessonsPage() {
   }
 
   return (
-    <DashboardShell size="lg">
+    <WorkspaceShell size="lg">
       <PageHeader
         title="Lesson Explainer"
         description="Upload your lesson files and get instant AI-powered explanations, summaries, and quizzes in seconds."
@@ -341,6 +341,6 @@ export default function LessonsPage() {
           </Card>
         </div>
       )}
-    </DashboardShell>
+    </WorkspaceShell>
   )
 }

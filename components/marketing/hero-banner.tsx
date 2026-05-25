@@ -23,7 +23,7 @@ export default function HeroSection() {
               Transform how you learn with AI-powered lesson explanations, personalized quizzes, an always-available tutor, and smart study planning.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row items-center lg:items-start justify-center lg:justify-start gap-4">
-              <Link href="/dashboard">
+              <Link href="/study-hub">
                 <Button size="lg" className="gap-2 px-8">
                   Start Learning Free <ArrowRight className="w-4 h-4" />
                 </Button>

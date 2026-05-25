@@ -18,6 +18,7 @@ export async function POST(request: NextRequest) {
       - Break down complex concepts into simpler parts
       - Use analogies and real-world examples
       - Highlight key terms and definitions
+      - Ensure proper spacing and formatting for readability
       - Provide step-by-step explanations where applicable
       - Use bullet points and numbered lists for clarity
       - Include practical applications when relevant
