@@ -31,7 +31,7 @@ export default function StudyHubLayout({
 
       <aside
         className={cn(
-          'fixed top-0 left-0 z-50 flex h-full w-[17.5rem] flex-col border-r border-sidebar-border bg-sidebar shadow-xl shadow-black/5 transition-transform duration-200 ease-out lg:translate-x-0',
+          'fixed top-0 left-0 z-50 flex h-full w-70 flex-col border-r border-sidebar-border bg-sidebar shadow-xl shadow-black/5 transition-transform duration-200 ease-out lg:translate-x-0',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full',
         )}
       >
@@ -105,7 +105,7 @@ export default function StudyHubLayout({
           <Link
             href="/study-hub/tutor"
             onClick={() => setSidebarOpen(false)}
-            className="block rounded-xl bg-gradient-to-br from-primary/15 via-primary/5 to-secondary/10 p-4 ring-1 ring-primary/15 transition-shadow hover:shadow-md"
+            className="block rounded-xl bg-linear-to-br from-primary/15 via-primary/5 to-secondary/10 p-4 ring-1 ring-primary/15 transition-shadow hover:shadow-md"
           >
             <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
               <Sparkles className="size-4 text-primary" />
@@ -116,7 +116,7 @@ export default function StudyHubLayout({
         </div>
       </aside>
 
-      <div className="flex min-h-screen flex-col lg:pl-[17.5rem]">
+      <div className="flex min-h-screen flex-col lg:pl-70">
         <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center gap-3 border-b border-border/80 bg-background/90 px-4 backdrop-blur-md sm:px-6">
           <Button
             variant="ghost"
