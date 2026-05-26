@@ -116,7 +116,7 @@ export default function LessonsPage() {
 
       {!result ? (
         <Card className="border border-sky-100 shadow-xl rounded-3xl overflow-hidden">
-          <CardHeader className="bg-gradient-to-r from-[#4cb1ff]/10 to-[#f7b801]/10">
+          <CardHeader className="bg-linear-to-r from-[#4cb1ff]/10 to-[#f7b801]/10">
             <CardTitle className="flex items-center gap-2 text-2xl">
               <Brain className="w-6 h-6 text-[#4cb1ff]" />
               AI Lesson Explainer
@@ -272,7 +272,7 @@ export default function LessonsPage() {
                   !title.trim() ||
                   (!content.trim() && !selectedFile)
                 }
-                className="w-full h-14 rounded-2xl text-lg font-semibold bg-gradient-to-r from-[#4cb1ff] to-[#6bc7ff] hover:opacity-90 shadow-lg"
+                className="w-full h-14 rounded-2xl text-lg font-semibold bg-linear-to-r from-[#4cb1ff] to-[#6bc7ff] hover:opacity-90 shadow-lg"
               >
                 {loading ? (
                   <>
@@ -282,7 +282,7 @@ export default function LessonsPage() {
                 ) : (
                   <>
                     <Sparkles className="w-5 h-5 mr-2" />
-                    Explain Lesson Fast
+                    Explain Lesson
                   </>
                 )}
               </Button>

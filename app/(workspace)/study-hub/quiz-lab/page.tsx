@@ -3,7 +3,6 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import {
   BrainCircuit,
   Sparkles,
@@ -41,7 +40,6 @@ interface QuizResult {
 type QuizState = 'setup' | 'taking' | 'results'
 
 export default function QuizzesPage() {
-  const [topic, setTopic] = useState('')
   const [difficulty, setDifficulty] = useState<
     'easy' | 'medium' | 'hard'
   >('medium')
@@ -93,7 +91,7 @@ export default function QuizzesPage() {
   ) => {
     e.preventDefault()
 
-    if (!topic.trim() && !selectedFile) return
+    if (!selectedFile) return
 
     setLoading(true)
     setError('')
@@ -101,7 +99,6 @@ export default function QuizzesPage() {
     try {
       const formData = new FormData()
 
-      formData.append('topic', topic)
       formData.append('difficulty', difficulty)
       formData.append(
         'questionCount',
@@ -181,7 +178,6 @@ export default function QuizzesPage() {
   }
 
   const handleReset = () => {
-    setTopic('')
     setQuiz(null)
     setQuizState('setup')
     setCurrentQuestion(0)
@@ -222,7 +218,7 @@ export default function QuizzesPage() {
       <WorkspaceShell size="lg">
         <PageHeader
           title="Quiz Generator"
-          description="Upload your lesson files or enter a topic to instantly generate AI-powered quizzes."
+          description="Upload your lesson files to instantly generate AI-powered quizzes."
           icon={BrainCircuit}
           variant="secondary"
         />
@@ -235,7 +231,7 @@ export default function QuizzesPage() {
             </CardTitle>
 
             <CardDescription className="text-base">
-              Generate quizzes from files, notes, or any study topic.
+              Generate quizzes directly from uploaded lesson content.
             </CardDescription>
           </CardHeader>
 
@@ -244,23 +240,6 @@ export default function QuizzesPage() {
               onSubmit={handleGenerateQuiz}
               className="space-y-6"
             >
-              {/* Topic */}
-              <div>
-                <label className="block text-sm font-semibold mb-2">
-                  Quiz Topic
-                </label>
-
-                <Input
-                  placeholder="e.g., Calculus, World War II, Python"
-                  value={topic}
-                  onChange={(e) =>
-                    setTopic(e.target.value)
-                  }
-                  disabled={loading}
-                  className="h-12 rounded-xl"
-                />
-              </div>
-
               {/* Upload Section */}
               <div>
                 <label className="block text-sm font-semibold mb-3">
@@ -279,7 +258,7 @@ export default function QuizzesPage() {
                       </p>
 
                       <p className="text-sm text-muted-foreground">
-                        PDF, DOCX, PPTX, TXT, or Images
+                        PDF, DOCX, PPTX,or Images
                       </p>
                     </div>
 
@@ -476,10 +455,7 @@ export default function QuizzesPage() {
               {/* Submit */}
               <Button
                 type="submit"
-                disabled={
-                  loading ||
-                  (!topic.trim() && !selectedFile)
-                }
+                disabled={loading || !selectedFile}
                 className="w-full h-14 rounded-2xl text-lg font-semibold bg-gradient-to-r from-[#4cb1ff] to-[#6bc7ff] hover:opacity-90 shadow-lg"
               >
                 {loading ? (

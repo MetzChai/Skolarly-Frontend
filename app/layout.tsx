@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: 'Skolarly - AI Study Companion',
-  description: 'Your intelligent study partner powered by AI. Get lesson explanations, generate quizzes, chat with an AI tutor, and plan your study schedule.',
-  keywords: ['AI study', 'education', 'learning', 'quiz generator', 'study planner', 'AI tutor'],
+  description: 'Your intelligent study partner powered by AI. Get lesson explanations, generate quizzes, and chat with an AI tutor.',
+  keywords: ['AI study', 'education', 'learning', 'quiz generator', 'AI tutor'],
 }
 
 export default function RootLayout({

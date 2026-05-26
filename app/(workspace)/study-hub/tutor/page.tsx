@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { Send, Loader2, User, Bot, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import ReactMarkdown from 'react-markdown'
@@ -17,16 +16,26 @@ interface Message {
 }
 
 const CHAT_STORAGE_KEY = "skolarly_chat_history";
+const CHAT_SESSION_KEY = "skolarly_chat_session";
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [sessionId, setSessionId] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const inputRef = useRef<HTMLInputElement>(null)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
+  }
+
+  const autoResizeTextarea = () => {
+    const textarea = inputRef.current
+    if (!textarea) return
+
+    textarea.style.height = 'auto'
+    textarea.style.height = `${textarea.scrollHeight}px`
   }
 
   useEffect(() => {
@@ -42,6 +51,11 @@ export default function ChatPage() {
         console.error("Failed to parse chat history", e);
       }
     }
+
+    const savedSession = localStorage.getItem(CHAT_SESSION_KEY);
+    if (savedSession) {
+      setSessionId(savedSession)
+    }
   }, []);
 
   // Save history to localStorage whenever it changes
@@ -50,6 +64,20 @@ export default function ChatPage() {
       localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(messages));
     }
   }, [messages]);
+
+  useEffect(() => {
+    if (sessionId) {
+      localStorage.setItem(CHAT_SESSION_KEY, sessionId)
+    }
+  }, [sessionId])
+
+  useEffect(() => {
+    autoResizeTextarea()
+  }, [input])
+
+  useEffect(() => {
+    autoResizeTextarea()
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -67,11 +95,9 @@ export default function ChatPage() {
 
     try {
       const response = await axiosInstance.post('/api/ai/chat', {
-        question: input.trim(),
-        history: [],
+        message: input.trim(),
+        sessionId,
       })
-      console.log(response);
-      console.log(messages);
 
       if (response.data.error) {
         throw new Error('Failed to send message')
@@ -84,6 +110,9 @@ export default function ChatPage() {
       }
 
       setMessages((prev) => [...prev, assistantMessage])
+      if (response.data.sessionId) {
+        setSessionId(response.data.sessionId)
+      }
       setLoading(false);
     } catch (error) {
       console.error('Chat error:', error)
@@ -96,6 +125,27 @@ export default function ChatPage() {
         },
       ])
       setLoading(false);
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && e.shiftKey) {
+      e.preventDefault()
+      const textarea = inputRef.current
+      if (!textarea) return
+
+      const start = textarea.selectionStart
+      const end = textarea.selectionEnd
+      const nextValue = input.slice(0, start) + '\n' + input.slice(end)
+
+      setInput(nextValue)
+      window.requestAnimationFrame(() => {
+        if (!textarea) return
+        const nextPos = start + 1
+        textarea.selectionStart = nextPos
+        textarea.selectionEnd = nextPos
+        autoResizeTextarea()
+      })
     }
   }
 
@@ -113,7 +163,7 @@ export default function ChatPage() {
           <div className="mx-auto max-w-3xl space-y-4">
             {messages.length === 0 ? (
               <div className="flex min-h-[min(420px,50vh)] flex-col items-center justify-center px-2 text-center">
-                <div className="mb-5 flex size-16 items-center justify-center rounded-2xl bg-gradient-to-br from-primary/20 to-secondary/20 ring-1 ring-primary/20">
+                <div className="mb-5 flex size-16 items-center justify-center rounded-2xl bg-linear-to-br from-primary/20 to-secondary/20 ring-1 ring-primary/20">
                   <Sparkles className="size-8 text-primary" />
                 </div>
                 <h2 className="text-xl font-semibold text-foreground">How can I help you today?</h2>
@@ -171,7 +221,9 @@ export default function ChatPage() {
                             <ReactMarkdown>{message.content || '...'}</ReactMarkdown>
                           </div>
                         ) : (
-                          <p className="text-sm leading-relaxed">{message.content}</p>
+                          <div className="whitespace-pre-wrap wrap-break-word text-sm leading-relaxed">
+                            {message.content}
+                          </div>
                         )}
                       </CardContent>
                     </Card>
@@ -198,13 +250,15 @@ export default function ChatPage() {
 
         <div className="shrink-0 border-t border-border/80 bg-background/95 px-4 py-4 backdrop-blur-sm sm:px-6">
           <form onSubmit={handleSubmit} className="mx-auto flex max-w-3xl gap-2">
-            <Input
+            <textarea
               ref={inputRef}
               placeholder="Ask me anything about your studies…"
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
               disabled={loading}
-              className="h-11 flex-1 rounded-xl border-border/80 bg-muted/30 shadow-sm focus-visible:bg-background"
+              rows={1}
+              className="min-h-12 flex-1 resize-none rounded-xl border border-border/80 bg-muted/30 px-3.5 py-3 text-sm leading-6 shadow-sm outline-none transition-all duration-150 focus-visible:border-ring focus-visible:bg-background focus-visible:ring-ring/50 focus-visible:ring-[3px]"
             />
             <Button
               type="submit"

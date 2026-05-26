@@ -1,4 +1,4 @@
-import { BookOpen, BrainCircuit, MessageSquare, Calendar } from 'lucide-react'
+import { BookOpen, BrainCircuit, MessageSquare } from 'lucide-react'
 import FeatureCard from './feature-card'
 
 export default function FeaturesSection() {
@@ -33,13 +33,6 @@ export default function FeaturesSection() {
             description="Chat with an intelligent tutor that can explain concepts, answer questions, and help with homework."
             href="/study-hub/tutor"
             color="primary"
-          />
-          <FeatureCard
-            icon={<Calendar className="w-6 h-6" />}
-            title="AI Study Planner"
-            description="Create AI-generated study schedules tailored to your goals and available time."
-            href="/study-hub/planner"
-            color="secondary"
           />
         </div>
       </div>

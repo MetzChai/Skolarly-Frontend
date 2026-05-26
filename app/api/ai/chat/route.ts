@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { streamText } from 'ai'
+import { generateText } from 'ai'
 import { getDb } from '@/lib/db'
 
 export async function POST(request: NextRequest) {
   try {
-    const { message, sessionId } = await request.json()
+    const { message: rawMessage, question, sessionId } = await request.json()
+    const message = rawMessage?.trim() || question?.trim()
 
     if (!message) {
       return NextResponse.json({ error: 'Message is required' }, { status: 400 })
@@ -30,21 +31,22 @@ export async function POST(request: NextRequest) {
     `
 
     // Get conversation history
-    const history = await sql`
+    const history = (await sql`
       SELECT role, content FROM chat_messages 
       WHERE session_id = ${currentSessionId}
       ORDER BY created_at ASC
       LIMIT 20
-    `
+    `) as Array<{ role: string; content: string }>
 
-    const messages = history.map(msg => ({
-      role: msg.role as 'user' | 'assistant',
-      content: msg.content
-    }))
+    const conversation = history
+      .map((msg) =>
+        msg.role === 'assistant'
+          ? `Tutor: ${msg.content}`
+          : `Student: ${msg.content}`
+      )
+      .join('\n\n')
 
-    const result = streamText({
-      model: 'openai/gpt-4o-mini',
-      system: `You are Skolarly, a friendly and knowledgeable AI study tutor. Your role is to help students learn effectively.
+    const system = `You are Skolarly, a friendly and knowledgeable AI study tutor. Your role is to help students learn effectively.
 
       Your capabilities:
       - Explain complex topics in simple terms
@@ -60,13 +62,29 @@ export async function POST(request: NextRequest) {
       - Break down complex topics
       - Ask clarifying questions when needed
       - Celebrate student progress
-      - Format responses with Markdown when helpful`,
-      messages,
+      - Format responses with Markdown when helpful
+      - Automatically detect the student's language and reply in the same language.
+      - Support English, Tagalog/Filipino, Cebuano, and mixed-language conversations such as Tagalog-English or Bisaya-English.
+      - Keep all tutoring responses clear, accurate, and educational.`
+
+    const prompt = `${conversation}\n\nStudent: ${message}\nTutor:`
+
+    const { text: answer } = await generateText({
+      model: 'openai/gpt-4o-mini',
+      system,
+      prompt,
     })
 
-    const response = await result.toTextStreamResponse()
+    // Save assistant response
+    await sql`
+      INSERT INTO chat_messages (session_id, role, content)
+      VALUES (${currentSessionId}, 'assistant', ${answer})
+    `
 
-    return response
+    return NextResponse.json({
+      data: { answer },
+      sessionId: currentSessionId,
+    })
   } catch (error) {
     console.error('Chat error:', error)
     return NextResponse.json({ error: 'Failed to process chat' }, { status: 500 })

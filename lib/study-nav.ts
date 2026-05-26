@@ -2,7 +2,6 @@ import {
   BookOpen,
   BrainCircuit,
   MessageSquare,
-  Calendar,
   Home,
   type LucideIcon,
 } from 'lucide-react'
@@ -38,12 +37,6 @@ export const studyNavItems: NavItem[] = [
     label: 'AI Tutor',
     icon: MessageSquare,
     description: 'Chat with your study tutor',
-  },
-  {
-    href: '/study-hub/planner',
-    label: 'Study Planner',
-    icon: Calendar,
-    description: 'Personalized study schedules',
   },
 ]
 

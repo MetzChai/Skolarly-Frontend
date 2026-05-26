@@ -3,7 +3,6 @@ import {
   BookOpen,
   BrainCircuit,
   MessageSquare,
-  Calendar,
   ArrowRight,
   TrendingUp,
   Clock,
@@ -41,14 +40,6 @@ const features = [
     href: '/study-hub/tutor',
     variant: 'primary' as const,
     badge: 'Ask',
-  },
-  {
-    title: 'AI Study Planner',
-    description: 'Create AI-generated study schedules for your goals.',
-    icon: Calendar,
-    href: '/study-hub/planner',
-    variant: 'secondary' as const,
-    badge: 'Plan',
   },
 ]
 
@@ -107,9 +98,6 @@ export default function StudyHubPage() {
                 <Zap className="size-4" />
                 Start with AI Tutor
               </Button>
-            </Link>
-            <Link href="/study-hub/planner">
-              <Button variant="outline">Plan my week</Button>
             </Link>
           </div>
         </div>
@@ -200,8 +188,7 @@ export default function StudyHubPage() {
           <p className="text-sm leading-relaxed text-muted-foreground">
             Use the <strong className="text-foreground">Lesson Explainer</strong> to understand new
             concepts, then test yourself with the <strong className="text-foreground">Quiz Generator</strong>.
-            Stuck? Ask the <strong className="text-foreground">AI Tutor</strong> — and keep on track with
-            the <strong className="text-foreground">Study Planner</strong>.
+            Stuck? Ask the <strong className="text-foreground">AI Tutor</strong> to stay on track.
           </p>
         </CardContent>
       </Card>
