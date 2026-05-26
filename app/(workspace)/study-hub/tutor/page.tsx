@@ -66,7 +66,7 @@ export default function ChatPage() {
     setLoading(true)
 
     try {
-      const response = await axiosInstance.post('/api/ai/chat', {
+      const response = await axiosInstance.post('/api/ai/v1/ask', {
         question: input.trim(),
         history: [],
       })
