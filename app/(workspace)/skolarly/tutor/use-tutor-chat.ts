@@ -2,11 +2,9 @@
 
 import { useState, useRef, useEffect } from "react";
 import { aiService } from "@/services/ai.service";
-import {
-  CHAT_STORAGE_KEY,
-  CHAT_SESSION_KEY,
-  MAX_FILE_SIZE,
-} from "./constants";
+import { tutorChatInputSchema } from "@/lib/schemas/tutor";
+import { ZodError } from "zod";
+import { CHAT_STORAGE_KEY, CHAT_SESSION_KEY, MAX_FILE_SIZE } from "./constants";
 import type { Message } from "./types";
 
 export function useTutorChat() {
@@ -15,6 +13,7 @@ export function useTutorChat() {
   const [loading, setLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [validationError, setValidationError] = useState("");
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
@@ -114,56 +113,72 @@ export function useTutorChat() {
 
   const handleSubmit = async (e?: React.FormEvent) => {
     e?.preventDefault();
+    setValidationError("");
 
-    if ((!input.trim() && !selectedFile) || loading) return;
-
-    const currentInput = input.trim();
-    const currentFile = selectedFile;
-    const fileText = currentFile ? `\n File: ${currentFile.name}` : "";
-
-    const userMessage: Message = {
-      id: Date.now().toString(),
-      role: "user",
-      content: currentInput + fileText,
-    };
-
-    setMessages((prev) => [...prev, userMessage]);
-
-    setInput("");
-    if (inputRef.current) {
-      inputRef.current.style.height = "48px";
-    }
-
-    setLoading(true);
+    if (loading) return;
 
     try {
-      const response = await aiService.ask(
-        currentInput,
-        messages,
-        selectedFile,
-      );
+      // Validate input data
+      const validatedData = tutorChatInputSchema.parse({
+        input,
+        file: selectedFile,
+      });
 
-      const assistantMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        role: "assistant",
-        content: response.data.answer,
+      const currentInput = validatedData.input.trim();
+      const currentFile = validatedData.file;
+      const fileText = currentFile ? `\n File: ${currentFile.name}` : "";
+
+      const userMessage: Message = {
+        id: Date.now().toString(),
+        role: "user",
+        content: currentInput + fileText,
       };
 
-      setMessages((prev) => [...prev, assistantMessage]);
-    } catch (error) {
-      console.error("Chat error:", error);
+      setMessages((prev) => [...prev, userMessage]);
 
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: Date.now().toString(),
+      setInput("");
+      if (inputRef.current) {
+        inputRef.current.style.height = "48px";
+      }
+
+      setLoading(true);
+
+      try {
+        const response = await aiService.ask(
+          currentInput,
+          messages,
+          currentFile,
+        );
+
+        const assistantMessage: Message = {
+          id: (Date.now() + 1).toString(),
           role: "assistant",
-          content: "I'm sorry, I encountered an error. Please try again.",
-        },
-      ]);
-    } finally {
-      setSelectedFile(null);
-      setLoading(false);
+          content: response.data.answer,
+        };
+
+        setMessages((prev) => [...prev, assistantMessage]);
+      } catch (error) {
+        console.error("Chat error:", error);
+
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: Date.now().toString(),
+            role: "assistant",
+            content: "I'm sorry, I encountered an error. Please try again.",
+          },
+        ]);
+      } finally {
+        setSelectedFile(null);
+        setLoading(false);
+      }
+    } catch (err) {
+      if (err instanceof ZodError) {
+        const errors = err.errors.map((e) => e.message).join(", ");
+        setValidationError(errors);
+      } else {
+        setValidationError("An error occurred. Please try again.");
+      }
     }
   };
 
@@ -188,6 +203,7 @@ export function useTutorChat() {
     messagesEndRef,
     inputRef,
     fileInputRef,
+    validationError,
     handleFileButtonClick,
     handleFileChange,
     removeFile,

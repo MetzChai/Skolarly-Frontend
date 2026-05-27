@@ -1,4 +1,11 @@
-import { BrainCircuit, Sparkles, Loader2, Upload, FileText, X } from "lucide-react";
+import {
+  BrainCircuit,
+  Sparkles,
+  Loader2,
+  Upload,
+  FileText,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -21,6 +28,7 @@ interface QuizSetupViewProps {
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onRemoveFile: () => void;
   onSubmit: (e: React.FormEvent) => void;
+  validationErrors?: Record<string, string>;
 }
 
 export function QuizSetupView({
@@ -34,6 +42,7 @@ export function QuizSetupView({
   onFileChange,
   onRemoveFile,
   onSubmit,
+  validationErrors = {},
 }: QuizSetupViewProps) {
   return (
     <WorkspaceShell size="lg">
@@ -164,7 +173,27 @@ export function QuizSetupView({
               </div>
             </div>
 
-            {error && <div className="text-red-500 text-sm font-medium">{error}</div>}
+            {error && (
+              <div className="text-red-500 text-sm font-medium">{error}</div>
+            )}
+
+            {validationErrors.file && (
+              <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600 border border-red-200">
+                {validationErrors.file}
+              </div>
+            )}
+
+            {validationErrors.difficulty && (
+              <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600 border border-red-200">
+                {validationErrors.difficulty}
+              </div>
+            )}
+
+            {validationErrors.quizType && (
+              <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600 border border-red-200">
+                {validationErrors.quizType}
+              </div>
+            )}
 
             <Button
               type="submit"

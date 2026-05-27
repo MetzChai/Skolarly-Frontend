@@ -15,6 +15,7 @@ interface TutorChatInputProps {
   onFileButtonClick: () => void;
   onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onRemoveFile: () => void;
+  validationError?: string;
 }
 
 export function TutorChatInput({
@@ -29,10 +30,17 @@ export function TutorChatInput({
   onFileButtonClick,
   onFileChange,
   onRemoveFile,
+  validationError = "",
 }: TutorChatInputProps) {
   return (
     <div className="fixed right-0 bottom-0 left-0 z-20 border-t border-border/80 bg-background/95 px-4 py-4 backdrop-blur-sm sm:px-6">
       <div className="mx-auto max-w-3xl">
+        {validationError && (
+          <div className="mb-3 rounded-lg bg-red-50 p-3 text-sm text-red-600 border border-red-200">
+            {validationError}
+          </div>
+        )}
+
         {selectedFile && (
           <TutorFilePreview file={selectedFile} onRemove={onRemoveFile} />
         )}

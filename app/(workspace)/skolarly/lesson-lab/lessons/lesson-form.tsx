@@ -1,10 +1,6 @@
 "use client";
 
-import {
-  Brain,
-  Loader2,
-  Sparkles,
-} from "lucide-react";
+import { Brain, Loader2, Sparkles } from "lucide-react";
 
 import {
   Card,
@@ -19,6 +15,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
 import { FileUpload } from "./file-upload";
+import type { LessonFormData } from "@/lib/schemas/lesson";
 
 interface Props {
   title: string;
@@ -28,11 +25,10 @@ interface Props {
   loading: boolean;
   error: string;
   selectedFile: File | null;
-  handleFileChange: (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => void;
+  handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   removeFile: () => void;
   handleSubmit: (e: React.FormEvent) => void;
+  validationErrors?: Record<string, string>;
 }
 
 export function LessonForm({
@@ -46,6 +42,7 @@ export function LessonForm({
   handleFileChange,
   removeFile,
   handleSubmit,
+  validationErrors = {},
 }: Props) {
   return (
     <Card className="border border-sky-100 shadow-xl rounded-3xl overflow-hidden">
@@ -56,8 +53,7 @@ export function LessonForm({
         </CardTitle>
 
         <CardDescription className="text-base leading-7">
-          Attach your files, notes, or lesson content for fast AI
-          explanations.
+          Attach your files, notes, or lesson content for fast AI explanations.
         </CardDescription>
       </CardHeader>
 
@@ -74,8 +70,13 @@ export function LessonForm({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               disabled={loading}
-              className="h-12 rounded-xl"
+              className={`h-12 rounded-xl ${validationErrors.title ? "border-red-500" : ""}`}
             />
+            {validationErrors.title && (
+              <p className="mt-1 text-sm text-red-500">
+                {validationErrors.title}
+              </p>
+            )}
           </div>
 
           {/* File Upload */}
@@ -97,15 +98,19 @@ export function LessonForm({
               onChange={(e) => setContent(e.target.value)}
               rows={8}
               disabled={loading}
-              className="resize-none rounded-2xl"
+              className={`resize-none rounded-2xl ${validationErrors.content ? "border-red-500" : ""}`}
             />
+            {validationErrors.content && (
+              <p className="mt-1 text-sm text-red-500">
+                {validationErrors.content}
+              </p>
+            )}
           </div>
 
-      
           {/* Error */}
-          {error && (
-            <div className="text-red-500 text-sm font-medium">
-              {error}
+          {(error || validationErrors.file) && (
+            <div className="text-red-500 text-sm font-medium bg-red-50 p-3 rounded-lg border border-red-200">
+              {error || validationErrors.file}
             </div>
           )}
 
@@ -113,9 +118,7 @@ export function LessonForm({
           <Button
             type="submit"
             disabled={
-              loading ||
-              (!selectedFile &&
-                (!title.trim() || !content.trim()))
+              loading || (!selectedFile && (!title.trim() || !content.trim()))
             }
             className="w-full h-14 rounded-2xl text-lg font-semibold bg-linear-to-r from-[#4cb1ff] to-[#6bc7ff] hover:opacity-90 shadow-lg"
           >

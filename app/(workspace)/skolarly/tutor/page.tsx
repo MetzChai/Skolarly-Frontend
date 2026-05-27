@@ -37,6 +37,7 @@ export default function ChatPage() {
           onFileButtonClick={chat.handleFileButtonClick}
           onFileChange={chat.handleFileChange}
           onRemoveFile={chat.removeFile}
+          validationError={chat.validationError}
         />
       </div>
     </div>

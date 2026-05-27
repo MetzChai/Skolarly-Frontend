@@ -21,6 +21,7 @@ export default function QuizzesPage() {
         onFileChange={quizLab.handleFileChange}
         onRemoveFile={quizLab.removeFile}
         onSubmit={quizLab.handleGenerateQuiz}
+        validationErrors={quizLab.validationErrors}
       />
     );
   }

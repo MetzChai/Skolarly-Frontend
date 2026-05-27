@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import axiosInstance from "@/lib/axios";
+import { lessonFormSchema } from "@/lib/schemas/lesson";
+import { ZodError } from "zod";
 
 export function useLessonExplainer() {
   const [title, setTitle] = useState("");
@@ -10,10 +12,11 @@ export function useLessonExplainer() {
   const [result, setResult] = useState("");
   const [error, setError] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
 
-  const handleFileChange = async (
-    e: React.ChangeEvent<HTMLInputElement>,
-  ) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
 
     if (!file) return;
@@ -36,22 +39,25 @@ export function useLessonExplainer() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    if (!selectedFile && (!title.trim() || !content.trim())) {
-      return;
-    }
-
-    setLoading(true);
+    setValidationErrors({});
     setError("");
 
     try {
+      // Validate form data
+      const validatedData = lessonFormSchema.parse({
+        title,
+        content,
+        file: selectedFile,
+      });
+
+      setLoading(true);
+
       const formData = new FormData();
+      formData.append("title", validatedData.title);
+      formData.append("content", validatedData.content);
 
-      formData.append("title", title);
-      formData.append("content", content);
-
-      if (selectedFile) {
-        formData.append("file", selectedFile);
+      if (validatedData.file) {
+        formData.append("file", validatedData.file);
       }
 
       const response = await axiosInstance.post(
@@ -66,8 +72,17 @@ export function useLessonExplainer() {
 
       setResult(response.data.data.answer);
     } catch (err) {
-      console.error(err);
-      setError("Failed to generate explanation.");
+      if (err instanceof ZodError) {
+        const errors: Record<string, string> = {};
+        err.errors.forEach((error) => {
+          const path = error.path.join(".");
+          errors[path] = error.message;
+        });
+        setValidationErrors(errors);
+      } else {
+        console.error(err);
+        setError("Failed to generate explanation.");
+      }
     } finally {
       setLoading(false);
     }
@@ -85,5 +100,6 @@ export function useLessonExplainer() {
     handleFileChange,
     removeFile,
     handleSubmit,
+    validationErrors,
   };
 }

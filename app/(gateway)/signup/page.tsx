@@ -1,13 +1,15 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Spinner } from '@/components/ui/spinner'
+import { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Mail,
   Lock,
@@ -19,23 +21,42 @@ import {
   BookOpen,
   BrainCircuit,
   MessageSquare,
-} from 'lucide-react'
+} from "lucide-react";
+import axiosInstance from "@/lib/axios";
+import { signupSchema, type SignupFormData } from "@/lib/schemas/auth";
 
 export default function SignupPage() {
-  const router = useRouter()
+  const router = useRouter();
 
-  const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [serverError, setServerError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<SignupFormData>({
+    resolver: zodResolver(signupSchema),
+    mode: "onBlur",
+  });
 
-    await new Promise((resolve) => setTimeout(resolve, 600))
-
-    router.push('/skolarly')
-  }
+  const onSubmit = async (data: SignupFormData) => {
+    setServerError("");
+    try {
+      await axiosInstance.post("/api/auth/v1/signup", {
+        name: data.name,
+        email: data.email,
+        password: data.password,
+      });
+      router.push("/login");
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || "Signup failed. Please try again.";
+      setServerError(errorMessage);
+      console.log("[Error]", error);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -44,7 +65,6 @@ export default function SignupPage() {
       <div className="absolute bottom-0 left-0 h-80 w-80 rounded-full bg-secondary/10 blur-3xl" />
 
       <div className="relative mx-auto flex min-h-screen max-w-lg flex-col px-4 py-8 sm:px-6">
-
         {/* HEADER */}
         <header className="flex items-center justify-between">
           <Link
@@ -68,12 +88,9 @@ export default function SignupPage() {
         </header>
 
         <main className="flex flex-1 flex-col justify-center py-12">
-
           {/* CARD */}
           <div className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-xl shadow-primary/5">
-
             <div className="flex flex-col">
-
               {/* BRAND HEADER */}
               <div className="relative overflow-hidden bg-linear-to-br from-primary/15 via-primary/5 to-secondary/10 px-6 pt-8 pb-6">
                 <div className="absolute -top-8 -right-8 h-32 w-32 rounded-full bg-primary/10 blur-2xl" />
@@ -100,7 +117,13 @@ export default function SignupPage() {
 
               {/* FORM */}
               <div className="px-6 pt-6 pb-4">
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                  {/* SERVER ERROR */}
+                  {serverError && (
+                    <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600 border border-red-200">
+                      {serverError}
+                    </div>
+                  )}
 
                   {/* NAME */}
                   <div className="space-y-2">
@@ -109,13 +132,17 @@ export default function SignupPage() {
                       <User className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         id="name"
-                        name="name"
                         placeholder="Alex Johnson"
-                        className="pl-9"
-                        required
+                        className={`pl-9 ${errors.name ? "border-red-500" : ""}`}
                         autoComplete="name"
+                        {...register("name")}
                       />
                     </div>
+                    {errors.name && (
+                      <p className="text-sm text-red-500">
+                        {errors.name.message}
+                      </p>
+                    )}
                   </div>
 
                   {/* EMAIL */}
@@ -125,14 +152,18 @@ export default function SignupPage() {
                       <Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         id="email"
-                        name="email"
                         type="email"
                         placeholder="you@school.edu"
-                        className="pl-9"
-                        required
+                        className={`pl-9 ${errors.email ? "border-red-500" : ""}`}
                         autoComplete="email"
+                        {...register("email")}
                       />
                     </div>
+                    {errors.email && (
+                      <p className="text-sm text-red-500">
+                        {errors.email.message}
+                      </p>
+                    )}
                   </div>
 
                   {/* PASSWORD */}
@@ -142,19 +173,17 @@ export default function SignupPage() {
                       <Lock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         id="password"
-                        name="password"
                         type={showPassword ? "text" : "password"}
-                        placeholder="At least 8 characters"
-                        className="pl-9 pr-10"
-                        required
-                        minLength={8}
+                        placeholder="At least 8 characters (uppercase, lowercase, number)"
+                        className={`pl-9 pr-10 ${errors.password ? "border-red-500" : ""}`}
                         autoComplete="new-password"
+                        {...register("password")}
                       />
 
                       <button
                         type="button"
                         tabIndex={-1}
-                        onClick={() => setShowPassword(v => !v)}
+                        onClick={() => setShowPassword((v) => !v)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                       >
                         {showPassword ? (
@@ -164,6 +193,11 @@ export default function SignupPage() {
                         )}
                       </button>
                     </div>
+                    {errors.password && (
+                      <p className="text-sm text-red-500">
+                        {errors.password.message}
+                      </p>
+                    )}
                   </div>
 
                   {/* CONFIRM PASSWORD */}
@@ -173,19 +207,17 @@ export default function SignupPage() {
                       <Lock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         id="confirmPassword"
-                        name="confirmPassword"
                         type={showConfirmPassword ? "text" : "password"}
                         placeholder="Re-enter your password"
-                        className="pl-9 pr-10"
-                        required
-                        minLength={8}
+                        className={`pl-9 pr-10 ${errors.confirmPassword ? "border-red-500" : ""}`}
                         autoComplete="new-password"
+                        {...register("confirmPassword")}
                       />
 
                       <button
                         type="button"
                         tabIndex={-1}
-                        onClick={() => setShowConfirmPassword(v => !v)}
+                        onClick={() => setShowConfirmPassword((v) => !v)}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                       >
                         {showConfirmPassword ? (
@@ -195,6 +227,11 @@ export default function SignupPage() {
                         )}
                       </button>
                     </div>
+                    {errors.confirmPassword && (
+                      <p className="text-sm text-red-500">
+                        {errors.confirmPassword.message}
+                      </p>
+                    )}
                   </div>
 
                   {/* SUBMIT */}
@@ -202,9 +239,9 @@ export default function SignupPage() {
                     type="submit"
                     className="w-full gap-2"
                     size="lg"
-                    disabled={isLoading}
+                    disabled={isSubmitting}
                   >
-                    {isLoading ? (
+                    {isSubmitting ? (
                       <>
                         <Spinner />
                         Creating account…
@@ -216,7 +253,6 @@ export default function SignupPage() {
                       </>
                     )}
                   </Button>
-
                 </form>
 
                 {/* FEATURE LIST */}
@@ -238,11 +274,13 @@ export default function SignupPage() {
                 {/* SWITCH */}
                 <p className="mt-6 text-center text-sm text-muted-foreground">
                   Already have an account?{" "}
-                  <Link href="/login" className="font-medium text-primary hover:underline">
+                  <Link
+                    href="/login"
+                    className="font-medium text-primary hover:underline"
+                  >
                     Sign in
                   </Link>
                 </p>
-
               </div>
             </div>
           </div>
@@ -251,9 +289,8 @@ export default function SignupPage() {
           <p className="mt-6 text-center text-xs text-muted-foreground">
             By continuing, you agree to use Skolarly for your personal learning.
           </p>
-
         </main>
       </div>
     </div>
-  )
+  );
 }

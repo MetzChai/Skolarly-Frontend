@@ -60,6 +60,8 @@ export const aiService = {
         },
     );
 
+    console.log(response.data);
+
     return response.data;
   },
 };

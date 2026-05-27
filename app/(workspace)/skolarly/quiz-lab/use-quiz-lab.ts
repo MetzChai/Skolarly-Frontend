@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import axiosInstance from "@/lib/axios";
+import { quizSetupSchema } from "@/lib/schemas/quiz";
+import { ZodError } from "zod";
 import type { QuizResult, QuizState } from "./types";
 
 export function useQuizLab() {
@@ -17,6 +19,9 @@ export function useQuizLab() {
   const [selectedAnswers, setSelectedAnswers] = useState<(number | null)[]>([]);
   const [showResult, setShowResult] = useState(false);
   const [error, setError] = useState("");
+  const [validationErrors, setValidationErrors] = useState<
+    Record<string, string>
+  >({});
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -30,16 +35,23 @@ export function useQuizLab() {
 
   const handleGenerateQuiz = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedFile) return;
-
-    setLoading(true);
+    setValidationErrors({});
     setError("");
 
     try {
+      // Validate form data
+      const validatedData = quizSetupSchema.parse({
+        difficulty,
+        quizType,
+        file: selectedFile,
+      });
+
+      setLoading(true);
+
       const formData = new FormData();
-      formData.append("difficulty", difficulty);
-      formData.append("quizType", quizType);
-      formData.append("file", selectedFile);
+      formData.append("difficulty", validatedData.difficulty);
+      formData.append("quizType", validatedData.quizType);
+      formData.append("file", validatedData.file);
 
       const response = await axiosInstance.post(
         "/api/ai/v1/quiz-generator",
@@ -59,8 +71,17 @@ export function useQuizLab() {
       setQuizState("taking");
       setCurrentQuestion(0);
     } catch (err) {
-      setError("Failed to generate quiz. Please try again.");
-      console.error(err);
+      if (err instanceof ZodError) {
+        const errors: Record<string, string> = {};
+        err.errors.forEach((error) => {
+          const path = error.path.join(".");
+          errors[path] = error.message;
+        });
+        setValidationErrors(errors);
+      } else {
+        setError("Failed to generate quiz. Please try again.");
+        console.error(err);
+      }
     } finally {
       setLoading(false);
     }
@@ -149,6 +170,7 @@ export function useQuizLab() {
     selectedAnswers,
     showResult,
     error,
+    validationErrors,
     handleFileChange,
     removeFile,
     handleGenerateQuiz,

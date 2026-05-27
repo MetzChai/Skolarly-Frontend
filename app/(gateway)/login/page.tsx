@@ -1,31 +1,46 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import Link from 'next/link'
-import Image from 'next/image'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
-import { Spinner } from '@/components/ui/spinner'
-import { Mail, Lock, Eye, EyeOff, ArrowRight, ArrowLeft } from 'lucide-react'
+import React, { useState } from "react";
+import Link from "next/link";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Spinner } from "@/components/ui/spinner";
+import { Mail, Lock, Eye, EyeOff, ArrowRight, ArrowLeft } from "lucide-react";
+import axiosInstance from "@/lib/axios";
+import { loginSchema, type LoginFormData } from "@/lib/schemas/auth";
 
 export default function LoginPage() {
-  const router = useRouter()
+  const router = useRouter();
+  const [showPassword, setShowPassword] = useState(false);
+  const [serverError, setServerError] = useState("");
 
-  const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    mode: "onBlur",
+  });
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-
-    await new Promise((resolve) => setTimeout(resolve, 600))
-
-    router.push('/skolarly')
-  }
+  const onSubmit = async (data: LoginFormData) => {
+    setServerError("");
+    try {
+      const response = await axiosInstance.post("/api/auth/v1/login", data);
+      console.log("SUCCESS:", response);
+      router.push("/skolarly");
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || "Login failed. Please try again.";
+      setServerError(errorMessage);
+      console.log("ERROR:", error.response?.data);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -34,7 +49,6 @@ export default function LoginPage() {
       <div className="absolute bottom-0 left-0 h-80 w-80 rounded-full bg-secondary/10 blur-3xl" />
 
       <div className="relative mx-auto flex min-h-screen max-w-lg flex-col px-4 py-8 sm:px-6">
-
         {/* HEADER */}
         <header className="flex items-center justify-between">
           <Link
@@ -59,12 +73,9 @@ export default function LoginPage() {
 
         {/* MAIN CONTENT */}
         <main className="flex flex-1 flex-col justify-center py-12">
-
           <div className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-xl shadow-primary/5">
-
             {/* LOGIN HEADER */}
             <div className="flex flex-col">
-
               <div className="relative overflow-hidden bg-linear-to-br from-primary/15 via-primary/5 to-secondary/10 px-6 pt-8 pb-6">
                 <div className="absolute -top-8 -right-8 h-32 w-32 rounded-full bg-primary/10 blur-2xl" />
                 <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-secondary/20 blur-2xl" />
@@ -90,7 +101,13 @@ export default function LoginPage() {
 
               {/* FORM */}
               <div className="px-6 pt-6 pb-6">
-                <form onSubmit={handleSubmit} className="space-y-4">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+                  {/* SERVER ERROR */}
+                  {serverError && (
+                    <div className="rounded-lg bg-red-50 p-3 text-sm text-red-600 border border-red-200">
+                      {serverError}
+                    </div>
+                  )}
 
                   {/* EMAIL */}
                   <div className="space-y-2">
@@ -99,14 +116,17 @@ export default function LoginPage() {
                       <Mail className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
                       <Input
                         id="email"
-                        name="email"
-                        type="email"
                         placeholder="you@school.edu"
-                        className="pl-9"
-                        required
+                        className={`pl-9 ${errors.email ? "border-red-500" : ""}`}
                         autoComplete="email"
+                        {...register("email")}
                       />
                     </div>
+                    {errors.email && (
+                      <p className="text-sm text-red-500">
+                        {errors.email.message}
+                      </p>
+                    )}
                   </div>
 
                   {/* PASSWORD */}
@@ -120,19 +140,18 @@ export default function LoginPage() {
 
                       <Input
                         id="password"
-                        name="password"
                         type={showPassword ? "text" : "password"}
                         placeholder="Enter your password"
-                        className="pl-9 pr-10"
-                        required
+                        className={`pl-9 pr-10 ${errors.password ? "border-red-500" : ""}`}
                         autoComplete="current-password"
+                        {...register("password")}
                       />
 
                       <button
                         type="button"
                         tabIndex={-1}
                         className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                        onClick={() => setShowPassword(v => !v)}
+                        onClick={() => setShowPassword((v) => !v)}
                       >
                         {showPassword ? (
                           <EyeOff className="size-4" />
@@ -141,18 +160,21 @@ export default function LoginPage() {
                         )}
                       </button>
                     </div>
+                    {errors.password && (
+                      <p className="text-sm text-red-500">
+                        {errors.password.message}
+                      </p>
+                    )}
                   </div>
-
-                  
 
                   {/* SUBMIT */}
                   <Button
                     type="submit"
                     className="w-full gap-2"
                     size="lg"
-                    disabled={isLoading}
+                    disabled={isSubmitting}
                   >
-                    {isLoading ? (
+                    {isSubmitting ? (
                       <>
                         <Spinner />
                         Signing in…
@@ -164,18 +186,19 @@ export default function LoginPage() {
                       </>
                     )}
                   </Button>
-
                 </form>
 
                 {/* SWITCH */}
                 <p className="mt-6 text-center text-sm text-muted-foreground">
                   Don&apos;t have an account?{" "}
-                  <Link href="/signup" className="font-medium text-primary hover:underline">
+                  <Link
+                    href="/signup"
+                    className="font-medium text-primary hover:underline"
+                  >
                     Sign up free
                   </Link>
                 </p>
               </div>
-
             </div>
           </div>
 
@@ -183,9 +206,8 @@ export default function LoginPage() {
           <p className="mt-8 text-center text-xs text-muted-foreground">
             By continuing, you agree to use Skolarly for your personal learning.
           </p>
-
         </main>
       </div>
     </div>
-  )
+  );
 }
