@@ -1,6 +1,14 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+
+import { usePathname } from "next/navigation";
+
 import axiosInstance from "@/lib/axios";
 
 type User = {
@@ -24,13 +32,20 @@ export const AuthProvider = ({
 }: {
   children: React.ReactNode;
 }) => {
+  const pathname = usePathname();
+
   const [user, setUser] = useState<User | null>(null);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        const res = await axiosInstance.get("/api/auth/v1/me");
+        setLoading(true);
+
+        const res =
+          await axiosInstance.get("/api/auth/v1/me");
+
         setUser(res.data.data.user);
       } catch (error) {
         setUser(null);
@@ -40,10 +55,15 @@ export const AuthProvider = ({
     };
 
     initializeAuth();
-  }, []);
+  }, [pathname]);
 
   return (
-    <AuthContext.Provider value={{ user, loading }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        loading,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
