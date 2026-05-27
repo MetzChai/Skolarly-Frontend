@@ -7,7 +7,7 @@ import { Send, Loader2, User, Bot, Sparkles } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import ReactMarkdown from 'react-markdown'
 import axiosInstance from "@/lib/axios";
-
+import { aiService } from "@/services/ai.service";
 
 interface Message {
   id: string
@@ -82,6 +82,7 @@ export default function ChatPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim() || loading) return
+    const userQuestion = input.trim();
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -94,12 +95,7 @@ export default function ChatPage() {
     setLoading(true)
 
     try {
-
-      const response = await axiosInstance.post('/api/ai/v1/ask', {
-        question: input.trim(),
-        history: [],
- 
-      })
+      const response = await aiService.ask(userQuestion, messages);
 
       if (response.data.error) {
         throw new Error('Failed to send message')
@@ -108,7 +104,7 @@ export default function ChatPage() {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: response.data.data.answer,
+        content: response.data.answer,
       }
 
       setMessages((prev) => [...prev, assistantMessage])
