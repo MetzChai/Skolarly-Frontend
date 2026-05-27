@@ -134,79 +134,10 @@ export default function ChatPage() {
     fileInputRef.current?.click()
   }
 
-<<<<<<< HEAD
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!input.trim() || loading) return
     const userQuestion = input.trim();
-=======
-  // FILE SELECT
-  const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0]
-
-    if (!file) return
-
-    const allowedTypes = [
-      'image/png',
-      'image/jpeg',
-      'image/jpg',
-      'image/webp',
-      'application/pdf',
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      'text/plain',
-    ]
-
-    // INVALID TYPE
-    if (
-      !allowedTypes.includes(file.type)
-    ) {
-      alert(
-        'Unsupported file type.'
-      )
-      return
-    }
-
-    // FILE SIZE
-    if (file.size > MAX_FILE_SIZE) {
-      alert(
-        'File size exceeds 10MB limit.'
-      )
-      return
-    }
-
-    setSelectedFile(file)
-  }
-
-  // REMOVE FILE
-  const removeFile = () => {
-    setSelectedFile(null)
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = ''
-    }
-  }
-
-  // SEND MESSAGE
-  const handleSubmit = async (
-    e?: React.FormEvent
-  ) => {
-    e?.preventDefault()
-
-    if (
-      (!input.trim() &&
-        !selectedFile) ||
-      loading
-    )
-      return
-
-    const currentInput = input.trim()
-
-    const fileText = selectedFile
-      ? `\n📎 File: ${selectedFile.name}`
-      : ''
->>>>>>> b1f530b21773c9e7c4560f1c4c39f118200f1657
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -231,7 +162,6 @@ export default function ChatPage() {
     setLoading(true)
 
     try {
-<<<<<<< HEAD
       const response = await aiService.ask(userQuestion, messages);
 
       if (response.data.error) {
@@ -249,7 +179,6 @@ export default function ChatPage() {
         setSessionId(response.data.sessionId)
       }
       setLoading(false);
-=======
       const response =
         await axiosInstance.post(
           '/api/ai/v1/ask',
