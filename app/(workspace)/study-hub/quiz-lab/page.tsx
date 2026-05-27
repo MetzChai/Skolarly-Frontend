@@ -1,8 +1,17 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { useState } from "react";
+
+import { Button } from "@/components/ui/button";
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+
 import {
   BrainCircuit,
   Sparkles,
@@ -12,180 +21,175 @@ import {
   Upload,
   FileText,
   X,
-  Clock3,
   FileQuestion,
-  BookOpen,
-} from 'lucide-react'
+} from "lucide-react";
 
-import { cn } from '@/lib/utils'
-import { PageHeader } from '@/components/layout/page-header'
-import { WorkspaceShell } from '@/components/layout/workspace-shell'
+import { cn } from "@/lib/utils";
+
+import { PageHeader } from "@/components/layout/page-header";
+
+import { WorkspaceShell } from "@/components/layout/workspace-shell";
+
+import axiosInstance from "@/lib/axios";
 
 interface QuizQuestion {
-  question: string
-  options: string[]
-  correctAnswer: number
-  explanation: string
+  type: "multiple-choice" | "true-false";
+
+  question: string;
+
+  options?: string[];
+
+  correctAnswer: string | number;
 }
 
 interface QuizResult {
   quiz: {
-    id: string
-    title: string
-    difficulty: string
-    questions: QuizQuestion[]
-  }
+    id: string;
+
+    title: string;
+
+    difficulty: string;
+
+    questions: QuizQuestion[];
+  };
 }
 
-type QuizState = 'setup' | 'taking' | 'results'
+type QuizState = "setup" | "taking" | "results";
 
 export default function QuizzesPage() {
-  const [difficulty, setDifficulty] = useState<
-    'easy' | 'medium' | 'hard'
-  >('medium')
+  const [difficulty, setDifficulty] = useState<"easy" | "medium" | "hard">(
+    "medium",
+  );
 
-  const [questionCount, setQuestionCount] = useState(10)
+  const [quizType, setQuizType] = useState("multiple-choice");
 
-  const [quizType, setQuizType] = useState('multiple-choice')
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  const [timedQuiz, setTimedQuiz] = useState(false)
+  const [loading, setLoading] = useState(false);
 
-  const [generateAnswerKey, setGenerateAnswerKey] = useState(true)
+  const [quiz, setQuiz] = useState<QuizResult["quiz"] | null>(null);
 
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [quizState, setQuizState] = useState<QuizState>("setup");
 
-  const [loading, setLoading] = useState(false)
+  const [currentQuestion, setCurrentQuestion] = useState(0);
 
-  const [quiz, setQuiz] = useState<QuizResult['quiz'] | null>(null)
+  const [selectedAnswers, setSelectedAnswers] = useState<(number | null)[]>([]);
 
-  const [quizState, setQuizState] =
-    useState<QuizState>('setup')
+  const [showResult, setShowResult] = useState(false);
 
-  const [currentQuestion, setCurrentQuestion] = useState(0)
+  const [error, setError] = useState("");
 
-  const [selectedAnswers, setSelectedAnswers] = useState<
-    (number | null)[]
-  >([])
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
 
-  const [showExplanation, setShowExplanation] =
-    useState(false)
+    if (!file) return;
 
-  const [error, setError] = useState('')
-
-  const handleFileChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = e.target.files?.[0]
-
-    if (!file) return
-
-    setSelectedFile(file)
-  }
+    setSelectedFile(file);
+  };
 
   const removeFile = () => {
-    setSelectedFile(null)
-  }
+    setSelectedFile(null);
+  };
 
-  const handleGenerateQuiz = async (
-    e: React.FormEvent
-  ) => {
-    e.preventDefault()
+  const handleGenerateQuiz = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-    if (!selectedFile) return
+    if (!selectedFile) return;
 
-    setLoading(true)
-    setError('')
+    setLoading(true);
+
+    setError("");
 
     try {
-      const formData = new FormData()
+      const formData = new FormData();
 
-      formData.append('difficulty', difficulty)
-      formData.append(
-        'questionCount',
-        questionCount.toString()
-      )
+      formData.append("difficulty", difficulty);
 
-      formData.append('quizType', quizType)
+      formData.append("quizType", quizType);
 
-      formData.append(
-        'generateAnswerKey',
-        generateAnswerKey.toString()
-      )
+      formData.append("file", selectedFile);
 
-      formData.append('timedQuiz', timedQuiz.toString())
+      const response = await axiosInstance.post(
+        "/api/ai/v1/quiz-generator",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+      );
 
-      if (selectedFile) {
-        formData.append('file', selectedFile)
-      }
+      const data = response.data.data.quiz;
+      console.log("Quiz data", data)
 
-      const response = await fetch('/api/ai/quiz', {
-        method: 'POST',
-        body: formData,
-      })
+      setQuiz(data.quiz);
 
-      if (!response.ok) {
-        throw new Error('Failed to generate quiz')
-      }
+      setSelectedAnswers(new Array(data.quiz.questions.length).fill(null));
 
-      const data: QuizResult = await response.json()
+      setQuizState("taking");
 
-      setQuiz(data.quiz)
-
-      setSelectedAnswers(
-        new Array(data.quiz.questions.length).fill(null)
-      )
-
-      setQuizState('taking')
-
-      setCurrentQuestion(0)
+      setCurrentQuestion(0);
     } catch (err) {
-      setError(
-        'Failed to generate quiz. Please try again.'
-      )
+      setError("Failed to generate quiz. Please try again.");
 
-      console.error(err)
+      console.error(err);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
-  const handleSelectAnswer = (
-    answerIndex: number
-  ) => {
-    if (selectedAnswers[currentQuestion] !== null)
-      return
+  const handleExitQuiz = () => {
+    const confirmExit = window.confirm(
+      "Are you sure you want to exit the quiz? Your progress will be lost.",
+    );
 
-    const newAnswers = [...selectedAnswers]
+    if (!confirmExit) return;
 
-    newAnswers[currentQuestion] = answerIndex
+    setQuiz(null);
+    setQuizState("setup");
+    setCurrentQuestion(0);
+    setSelectedAnswers([]);
+    setShowResult(false);
+    setError("");
+  };
 
-    setSelectedAnswers(newAnswers)
+  const handleSelectAnswer = (answerIndex: number) => {
+    if (selectedAnswers[currentQuestion] !== null) return;
 
-    setShowExplanation(true)
-  }
+    const newAnswers = [...selectedAnswers];
+
+    newAnswers[currentQuestion] = answerIndex;
+
+    setSelectedAnswers(newAnswers);
+
+    setShowResult(true);
+  };
 
   const handleNextQuestion = () => {
-    if (
-      currentQuestion <
-      (quiz?.questions.length ?? 0) - 1
-    ) {
-      setCurrentQuestion(currentQuestion + 1)
+    if (currentQuestion < (quiz?.questions.length ?? 0) - 1) {
+      setCurrentQuestion(currentQuestion + 1);
 
-      setShowExplanation(false)
+      setShowResult(false);
     } else {
-      setQuizState('results')
+      setQuizState("results");
     }
-  }
+  };
 
   const handleReset = () => {
-    setQuiz(null)
-    setQuizState('setup')
-    setCurrentQuestion(0)
-    setSelectedAnswers([])
-    setShowExplanation(false)
-    setSelectedFile(null)
-    setError('')
-  }
+    setQuiz(null);
+
+    setQuizState("setup");
+
+    setCurrentQuestion(0);
+
+    setSelectedAnswers([]);
+
+    setShowResult(false);
+
+    setSelectedFile(null);
+
+    setError("");
+  };
 
   const calculateScore = () => {
     if (!quiz)
@@ -193,27 +197,26 @@ export default function QuizzesPage() {
         correct: 0,
         total: 0,
         percentage: 0,
-      }
+      };
 
     const correct = selectedAnswers.filter(
-      (answer, index) =>
-        answer === quiz.questions[index].correctAnswer
-    ).length
+      (answer, index) => answer === quiz.questions[index].correctAnswer,
+    ).length;
 
     return {
       correct,
+
       total: quiz.questions.length,
-      percentage: Math.round(
-        (correct / quiz.questions.length) * 100
-      ),
-    }
-  }
+
+      percentage: Math.round((correct / quiz.questions.length) * 100),
+    };
+  };
 
   // =========================
   // SETUP SCREEN
   // =========================
 
-  if (quizState === 'setup') {
+  if (quizState === "setup") {
     return (
       <WorkspaceShell size="lg">
         <PageHeader
@@ -236,10 +239,7 @@ export default function QuizzesPage() {
           </CardHeader>
 
           <CardContent className="p-6">
-            <form
-              onSubmit={handleGenerateQuiz}
-              className="space-y-6"
-            >
+            <form onSubmit={handleGenerateQuiz} className="space-y-6">
               {/* Upload Section */}
               <div>
                 <label className="block text-sm font-semibold mb-3">
@@ -258,7 +258,7 @@ export default function QuizzesPage() {
                       </p>
 
                       <p className="text-sm text-muted-foreground">
-                        PDF, DOCX, PPTX,or Images
+                        PDF, DOCX, PPTX, or PPT
                       </p>
                     </div>
 
@@ -287,15 +287,10 @@ export default function QuizzesPage() {
                       </div>
 
                       <div>
-                        <p className="font-medium">
-                          {selectedFile.name}
-                        </p>
+                        <p className="font-medium">{selectedFile.name}</p>
 
                         <p className="text-sm text-muted-foreground">
-                          {(
-                            selectedFile.size / 1024
-                          ).toFixed(1)}{' '}
-                          KB
+                          {(selectedFile.size / 1024).toFixed(1)} KB
                         </p>
                       </div>
                     </div>
@@ -319,56 +314,21 @@ export default function QuizzesPage() {
                 </label>
 
                 <div className="grid grid-cols-3 gap-3">
-                  {(
-                    ['easy', 'medium', 'hard'] as const
-                  ).map((level) => (
+                  {(["easy", "medium", "hard"] as const).map((level) => (
                     <button
                       key={level}
                       type="button"
-                      onClick={() =>
-                        setDifficulty(level)
-                      }
+                      onClick={() => setDifficulty(level)}
                       className={cn(
-                        'py-4 rounded-2xl font-medium capitalize transition',
+                        "py-4 rounded-2xl font-medium capitalize transition",
                         difficulty === level
-                          ? 'bg-[#4cb1ff] text-white shadow-lg'
-                          : 'bg-background border hover:border-[#4cb1ff]/40'
+                          ? "bg-[#4cb1ff] text-white shadow-lg"
+                          : "bg-background border hover:border-[#4cb1ff]/40",
                       )}
                     >
                       {level}
                     </button>
                   ))}
-                </div>
-              </div>
-
-              {/* Question Slider */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="text-sm font-semibold">
-                    Number of Questions
-                  </label>
-
-                  <span className="text-sm font-medium text-[#4cb1ff]">
-                    {questionCount} Questions Selected
-                  </span>
-                </div>
-
-                <input
-                  type="range"
-                  min="5"
-                  max="60"
-                  value={questionCount}
-                  onChange={(e) =>
-                    setQuestionCount(
-                      parseInt(e.target.value)
-                    )
-                  }
-                  className="w-full accent-[#4cb1ff]"
-                />
-
-                <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                  <span>5</span>
-                  <span>60</span>
                 </div>
               </div>
 
@@ -378,78 +338,28 @@ export default function QuizzesPage() {
                   Quiz Type
                 </label>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  {[
-                    'multiple-choice',
-                    'identification',
-                    'true-false',
-                    'mixed',
-                  ].map((type) => (
+                <div className="grid grid-cols-3 gap-3">
+                  {["multiple-choice", "true-false", "mixed"].map((type) => (
                     <button
                       key={type}
                       type="button"
-                      onClick={() =>
-                        setQuizType(type)
-                      }
+                      onClick={() => setQuizType(type)}
                       className={cn(
-                        'rounded-2xl py-3 border text-sm font-medium transition capitalize',
+                        "rounded-2xl py-3 border text-sm font-medium transition capitalize",
                         quizType === type
-                          ? 'bg-[#f7b801] text-black border-[#f7b801]'
-                          : 'hover:border-[#f7b801]'
+                          ? "bg-[#f7b801] text-black border-[#f7b801]"
+                          : "hover:border-[#f7b801]",
                       )}
                     >
-                      {type.replace('-', ' ')}
+                      {type.replace("-", " ")}
                     </button>
                   ))}
                 </div>
               </div>
 
-              {/* Toggles */}
-              <div className="grid md:grid-cols-2 gap-4">
-                <div className="flex items-center justify-between border rounded-2xl p-4">
-                  <div className="flex items-center gap-2">
-                    <Clock3 className="w-5 h-5 text-[#4cb1ff]" />
-                    <span className="font-medium">
-                      Timed Quiz
-                    </span>
-                  </div>
-
-                  <input
-                    type="checkbox"
-                    checked={timedQuiz}
-                    onChange={() =>
-                      setTimedQuiz(!timedQuiz)
-                    }
-                    className="w-5 h-5"
-                  />
-                </div>
-
-                <div className="flex items-center justify-between border rounded-2xl p-4">
-                  <div className="flex items-center gap-2">
-                    <BookOpen className="w-5 h-5 text-[#f7b801]" />
-                    <span className="font-medium">
-                      Generate Answer Key
-                    </span>
-                  </div>
-
-                  <input
-                    type="checkbox"
-                    checked={generateAnswerKey}
-                    onChange={() =>
-                      setGenerateAnswerKey(
-                        !generateAnswerKey
-                      )
-                    }
-                    className="w-5 h-5"
-                  />
-                </div>
-              </div>
-
               {/* Error */}
               {error && (
-                <div className="text-red-500 text-sm font-medium">
-                  {error}
-                </div>
+                <div className="text-red-500 text-sm font-medium">{error}</div>
               )}
 
               {/* Submit */}
@@ -474,48 +384,52 @@ export default function QuizzesPage() {
           </CardContent>
         </Card>
       </WorkspaceShell>
-    )
+    );
   }
 
   // =========================
   // TAKING QUIZ
   // =========================
 
-  if (quizState === 'taking' && quiz) {
-    const question = quiz.questions[currentQuestion]
+  if (quizState === "taking" && quiz) {
+    const question = quiz.questions[currentQuestion];
 
-    const selectedAnswer =
-      selectedAnswers[currentQuestion]
+    const selectedAnswer = selectedAnswers[currentQuestion];
 
-    const isCorrect =
-      selectedAnswer === question.correctAnswer
+    const isCorrect = selectedAnswer === question.correctAnswer;
 
     return (
       <WorkspaceShell size="md">
-        <div className="mb-6">
-          <div className="flex justify-between mb-2">
-            <span className="text-sm font-medium">
-              Question {currentQuestion + 1} of{' '}
-              {quiz.questions.length}
-            </span>
+        <div className="mb-6 flex items-center justify-between">
+          <div>
+            <div className="flex justify-between mb-2">
+              <span className="text-sm font-medium">
+                Question {currentQuestion + 1} of {quiz.questions.length}
+              </span>
 
-            <span className="capitalize text-sm">
-              {quiz.difficulty}
-            </span>
+              <span className="capitalize text-sm">{quiz.difficulty}</span>
+            </div>
+
+            <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
+              <div
+                className="h-full bg-[#4cb1ff] transition-all"
+                style={{
+                  width: `${
+                    ((currentQuestion + 1) / quiz.questions.length) * 100
+                  }%`,
+                }}
+              />
+            </div>
           </div>
 
-          <div className="w-full h-3 bg-muted rounded-full overflow-hidden">
-            <div
-              className="h-full bg-[#4cb1ff] transition-all"
-              style={{
-                width: `${
-                  ((currentQuestion + 1) /
-                    quiz.questions.length) *
-                  100
-                }%`,
-              }}
-            />
-          </div>
+          {/* EXIT BUTTON */}
+          <Button
+            variant="destructive"
+            className="ml-4 rounded-xl"
+            onClick={handleExitQuiz}
+          >
+            Exit
+          </Button>
         </div>
 
         <Card className="rounded-3xl shadow-lg">
@@ -526,34 +440,28 @@ export default function QuizzesPage() {
           </CardHeader>
 
           <CardContent className="space-y-4">
-            {question.options.map((option, index) => {
-              const isSelected =
-                selectedAnswer === index
+            {question.options?.map((option, index) => {
+              const isSelected = selectedAnswer === index;
 
-              const isCorrectAnswer =
-                index === question.correctAnswer
-
-              const showResult =
-                selectedAnswer !== null
+              const isCorrectAnswer = index === question.correctAnswer;
 
               return (
                 <button
                   key={index}
-                  onClick={() =>
-                    handleSelectAnswer(index)
-                  }
+                  onClick={() => handleSelectAnswer(index)}
                   disabled={selectedAnswer !== null}
                   className={cn(
-                    'w-full p-4 rounded-2xl border text-left transition-all',
-                    !showResult &&
-                      'hover:border-[#4cb1ff]',
-                    showResult &&
+                    "w-full p-4 rounded-2xl border text-left transition-all",
+                    selectedAnswer === null && "hover:border-[#4cb1ff]",
+
+                    selectedAnswer !== null &&
                       isCorrectAnswer &&
-                      'bg-green-500/10 border-green-500',
-                    showResult &&
+                      "bg-green-500/10 border-green-500",
+
+                    selectedAnswer !== null &&
                       isSelected &&
                       !isCorrectAnswer &&
-                      'bg-red-500/10 border-red-500'
+                      "bg-red-500/10 border-red-500",
                   )}
                 >
                   <div className="flex items-center gap-3">
@@ -564,19 +472,20 @@ export default function QuizzesPage() {
                     <span>{option}</span>
                   </div>
                 </button>
-              )
+              );
             })}
 
-            {showExplanation && (
-              <div className="p-4 rounded-2xl border bg-primary/5">
-                <p className="font-semibold mb-1">
-                  {isCorrect
-                    ? 'Correct!'
-                    : 'Explanation'}
-                </p>
-
-                <p className="text-sm text-muted-foreground">
-                  {question.explanation}
+            {showResult && (
+              <div
+                className={cn(
+                  "p-4 rounded-2xl border",
+                  isCorrect
+                    ? "bg-green-500/10 border-green-500"
+                    : "bg-red-500/10 border-red-500",
+                )}
+              >
+                <p className="font-semibold">
+                  {isCorrect ? "Correct!" : "Wrong Answer"}
                 </p>
               </div>
             )}
@@ -586,24 +495,23 @@ export default function QuizzesPage() {
                 onClick={handleNextQuestion}
                 className="w-full rounded-2xl h-12"
               >
-                {currentQuestion <
-                quiz.questions.length - 1
-                  ? 'Next Question'
-                  : 'See Results'}
+                {currentQuestion < quiz.questions.length - 1
+                  ? "Next Question"
+                  : "See Results"}
               </Button>
             )}
           </CardContent>
         </Card>
       </WorkspaceShell>
-    )
+    );
   }
 
   // =========================
   // RESULTS
   // =========================
 
-  if (quizState === 'results' && quiz) {
-    const score = calculateScore()
+  if (quizState === "results" && quiz) {
+    const score = calculateScore();
 
     return (
       <WorkspaceShell size="md">
@@ -613,13 +521,9 @@ export default function QuizzesPage() {
               <Trophy className="w-12 h-12 text-[#4cb1ff]" />
             </div>
 
-            <CardTitle className="text-3xl">
-              Quiz Complete!
-            </CardTitle>
+            <CardTitle className="text-3xl">Quiz Complete!</CardTitle>
 
-            <CardDescription>
-              {quiz.title}
-            </CardDescription>
+            <CardDescription>{quiz.title}</CardDescription>
           </CardHeader>
 
           <CardContent className="space-y-6 text-center">
@@ -629,8 +533,7 @@ export default function QuizzesPage() {
               </p>
 
               <p className="text-muted-foreground mt-2">
-                You got {score.correct} out of{' '}
-                {score.total} correct
+                You got {score.correct} out of {score.total} correct
               </p>
             </div>
 
@@ -655,14 +558,15 @@ export default function QuizzesPage() {
 
               <Button
                 onClick={() => {
-                  setQuizState('taking')
-                  setCurrentQuestion(0)
+                  setQuizState("taking");
+
+                  setCurrentQuestion(0);
+
                   setSelectedAnswers(
-                    new Array(
-                      quiz.questions.length
-                    ).fill(null)
-                  )
-                  setShowExplanation(false)
+                    new Array(quiz.questions.length).fill(null),
+                  );
+
+                  setShowResult(false);
                 }}
                 className="rounded-2xl gap-2"
               >
@@ -673,8 +577,8 @@ export default function QuizzesPage() {
           </CardContent>
         </Card>
       </WorkspaceShell>
-    )
+    );
   }
 
-  return null
+  return null;
 }
