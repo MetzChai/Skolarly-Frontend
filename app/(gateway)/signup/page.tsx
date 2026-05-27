@@ -7,15 +7,25 @@ import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Checkbox } from '@/components/ui/checkbox'
 import { Spinner } from '@/components/ui/spinner'
-import { Mail, Lock, Eye, EyeOff, ArrowRight, ArrowLeft } from 'lucide-react'
+import {
+  Mail,
+  Lock,
+  User,
+  Eye,
+  EyeOff,
+  ArrowRight,
+  ArrowLeft,
+  BookOpen,
+  BrainCircuit,
+  MessageSquare,
+} from 'lucide-react'
 
-export default function LoginPage() {
+export default function SignupPage() {
   const router = useRouter()
 
   const [showPassword, setShowPassword] = useState(false)
-  const [rememberMe, setRememberMe] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -57,14 +67,14 @@ export default function LoginPage() {
           </Link>
         </header>
 
-        {/* MAIN CONTENT */}
         <main className="flex flex-1 flex-col justify-center py-12">
 
+          {/* CARD */}
           <div className="overflow-hidden rounded-2xl border border-border/80 bg-card shadow-xl shadow-primary/5">
 
-            {/* LOGIN HEADER */}
             <div className="flex flex-col">
 
+              {/* BRAND HEADER */}
               <div className="relative overflow-hidden bg-linear-to-br from-primary/15 via-primary/5 to-secondary/10 px-6 pt-8 pb-6">
                 <div className="absolute -top-8 -right-8 h-32 w-32 rounded-full bg-primary/10 blur-2xl" />
                 <div className="absolute -bottom-6 -left-6 h-24 w-24 rounded-full bg-secondary/20 blur-2xl" />
@@ -79,18 +89,34 @@ export default function LoginPage() {
                   />
 
                   <h2 className="mt-4 text-2xl font-bold tracking-tight text-foreground">
-                    Welcome back
+                    Join Skolarly
                   </h2>
 
                   <p className="mt-1.5 max-w-xs text-sm text-muted-foreground">
-                    Sign in to pick up where you left off
+                    Start learning smarter with AI-powered tools
                   </p>
                 </div>
               </div>
 
               {/* FORM */}
-              <div className="px-6 pt-6 pb-6">
+              <div className="px-6 pt-6 pb-4">
                 <form onSubmit={handleSubmit} className="space-y-4">
+
+                  {/* NAME */}
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Full name</Label>
+                    <div className="relative">
+                      <User className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        id="name"
+                        name="name"
+                        placeholder="Alex Johnson"
+                        className="pl-9"
+                        required
+                        autoComplete="name"
+                      />
+                    </div>
+                  </div>
 
                   {/* EMAIL */}
                   <div className="space-y-2">
@@ -111,28 +137,25 @@ export default function LoginPage() {
 
                   {/* PASSWORD */}
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="password">Password</Label>
-                    </div>
-
+                    <Label htmlFor="password">Password</Label>
                     <div className="relative">
                       <Lock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
-
                       <Input
                         id="password"
                         name="password"
                         type={showPassword ? "text" : "password"}
-                        placeholder="Enter your password"
+                        placeholder="At least 8 characters"
                         className="pl-9 pr-10"
                         required
-                        autoComplete="current-password"
+                        minLength={8}
+                        autoComplete="new-password"
                       />
 
                       <button
                         type="button"
                         tabIndex={-1}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                         onClick={() => setShowPassword(v => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                       >
                         {showPassword ? (
                           <EyeOff className="size-4" />
@@ -143,7 +166,36 @@ export default function LoginPage() {
                     </div>
                   </div>
 
-                  
+                  {/* CONFIRM PASSWORD */}
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirm password</Label>
+                    <div className="relative">
+                      <Lock className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+                      <Input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type={showConfirmPassword ? "text" : "password"}
+                        placeholder="Re-enter your password"
+                        className="pl-9 pr-10"
+                        required
+                        minLength={8}
+                        autoComplete="new-password"
+                      />
+
+                      <button
+                        type="button"
+                        tabIndex={-1}
+                        onClick={() => setShowConfirmPassword(v => !v)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                      >
+                        {showConfirmPassword ? (
+                          <EyeOff className="size-4" />
+                        ) : (
+                          <Eye className="size-4" />
+                        )}
+                      </button>
+                    </div>
+                  </div>
 
                   {/* SUBMIT */}
                   <Button
@@ -155,11 +207,11 @@ export default function LoginPage() {
                     {isLoading ? (
                       <>
                         <Spinner />
-                        Signing in…
+                        Creating account…
                       </>
                     ) : (
                       <>
-                        Sign in
+                        Create account
                         <ArrowRight className="size-4" />
                       </>
                     )}
@@ -167,20 +219,36 @@ export default function LoginPage() {
 
                 </form>
 
+                {/* FEATURE LIST */}
+                <ul className="mt-5 space-y-2 rounded-lg border border-border/80 bg-muted/40 px-4 py-3">
+                  <li className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <BookOpen className="size-3.5 text-primary" />
+                    AI lesson explanations
+                  </li>
+                  <li className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <BrainCircuit className="size-3.5 text-primary" />
+                    Personalized quizzes
+                  </li>
+                  <li className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <MessageSquare className="size-3.5 text-primary" />
+                    24/7 AI tutor chat
+                  </li>
+                </ul>
+
                 {/* SWITCH */}
                 <p className="mt-6 text-center text-sm text-muted-foreground">
-                  Don&apos;t have an account?{" "}
-                  <Link href="/signup" className="font-medium text-primary hover:underline">
-                    Sign up free
+                  Already have an account?{" "}
+                  <Link href="/login" className="font-medium text-primary hover:underline">
+                    Sign in
                   </Link>
                 </p>
-              </div>
 
+              </div>
             </div>
           </div>
 
-          {/* FOOTER — FIXED LOCATION (ONLY ONCE) */}
-          <p className="mt-8 text-center text-xs text-muted-foreground">
+          {/* FOOTER (OUTSIDE CARD — FIXED) */}
+          <p className="mt-6 text-center text-xs text-muted-foreground">
             By continuing, you agree to use Skolarly for your personal learning.
           </p>
 
