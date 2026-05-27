@@ -137,7 +137,7 @@ export default function LessonsPage() {
   return (
     <WorkspaceShell size="lg">
       <PageHeader
-        title="Lesson Explainer"
+        title="Skolarly AI Explainer"
         description="Upload your lesson files and get instant AI-powered explanations, summaries, and quizzes in seconds."
         icon={BookOpen}
       />
@@ -147,7 +147,7 @@ export default function LessonsPage() {
           <CardHeader className="bg-linear-to-r from-[#4cb1ff]/10 to-[#f7b801]/10">
             <CardTitle className="flex items-center gap-2 text-2xl">
               <Brain className="w-6 h-6 text-[#4cb1ff]" />
-              AI Lesson Explainer
+              Skolarly AI Explainer
             </CardTitle>
 
             <CardDescription className="text-base">
