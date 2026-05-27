@@ -51,13 +51,10 @@ export function TutorChatInput({
             type="file"
             hidden
             accept="
-                  .png,
-                  .jpg,
-                  .jpeg,
-                  .webp,
                   .pdf,
                   .docx,
-                  .txt
+                  .ppt
+                  .pptx
                 "
             onChange={onFileChange}
           />

@@ -6,10 +6,13 @@ import { usePathname } from "next/navigation";
 import { ArrowLeft, Menu, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import axiosInstance from "@/lib/axios";
 import { studyNavItems, getPageMeta } from "@/lib/study-nav";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
-export default function StudyHubLayout({
+
+export default function SkolarlyLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -157,7 +160,7 @@ export default function StudyHubLayout({
             isChat ? "min-h-0 overflow-hidden" : "",
           )}
         >
-          {children}
+          <ProtectedRoute>{children}</ProtectedRoute>
         </main>
       </div>
     </div>

@@ -2,13 +2,10 @@ import { z } from "zod";
 
 export const tutorChatInputSchema = z
   .object({
-    input: z
-      .string()
-      .min(1, "Message is required")
-      .max(5000, "Message must be less than 5000 characters"),
+    input: z.string().max(5000, "Message must be less than 5000 characters"),
     file: z
-      .instanceof(File)
-      .optional()
+      .custom<File | null>((val) => val === null || val instanceof File)
+      .nullable()
       .refine(
         (file) => !file || file.size <= 25 * 1024 * 1024,
         "File size must be less than 25MB",
