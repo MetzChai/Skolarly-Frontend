@@ -6,28 +6,60 @@ export interface ChatMessage {
 }
 
 export const aiService = {
-  ask: async (question: string, history: ChatMessage[]) => {
+  ask: async (
+    question: string,
+    history: ChatMessage[],
+    file?: File | null
+  ) => {
     // Limit to the 5 most recent messages
     let recentHistory = history.slice(-5);
 
-    // Gemini requires the history to start with a 'user' message.
-    // If our slice starts with a bot message, remove it.
-    if (recentHistory.length > 0 && recentHistory[0].role === "assistant") {
+    // Gemini requires history to start with user
+    if (
+      recentHistory.length > 0 &&
+      recentHistory[0].role === "assistant"
+    ) {
       recentHistory = recentHistory.slice(1);
     }
 
-    // Transform history to match backend askSchema (Gemini format)
-    const formattedHistory = recentHistory.map(m => ({
+    // Transform history for Gemini
+    const formattedHistory = recentHistory.map((m) => ({
       role: m.role === "assistant" ? "model" : "user",
-      parts: [{ text: m.content }]
+      parts: [{ text: m.content }],
     }));
 
-    console.log("format hsitory", formattedHistory);
+    console.log("formatted history", formattedHistory);
 
-    const response = await axiosInstance.post("/api/ai/v1/ask", {
-      question,
-      history: formattedHistory
-    });
+    // CREATE FORMDATA
+    const formData = new FormData();
+
+    // TEXT INPUT
+    formData.append("question", question);
+
+    // HISTORY
+    formData.append(
+      "history",
+      JSON.stringify(formattedHistory)
+    );
+
+    // FILE
+    if (file) {
+      formData.append("file", file);
+    }
+
+    console.log("file", file);
+
+    // SEND REQUEST
+    const response = await axiosInstance.post(
+      "/api/ai/v1/ask",
+      formData,
+      {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        },
+    );
+
     return response.data;
-  }
+  },
 };
