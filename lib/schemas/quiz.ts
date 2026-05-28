@@ -16,7 +16,7 @@ export const quizSetupSchema = z.object({
       "File size must be less than 25MB",
     )
     .refine(
-      (file) => /\.(pdf|doc|docx|ppt|pptx|txt|png|jpg|jpeg)$/i.test(file.name),
+      (file) => /\.(pdf|doc|docx|ppt|pptx)$/i.test(file.name),
       "File must be a valid document or image",
     ),
 });
