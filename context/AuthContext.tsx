@@ -45,7 +45,6 @@ export const AuthProvider = ({
 
         const res =
           await axiosInstance.get("/api/auth/v1/me");
-          console.log(res);
 
         setUser(res.data.data.user);
       } catch (error) {

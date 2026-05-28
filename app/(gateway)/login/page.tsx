@@ -32,7 +32,6 @@ export default function LoginPage() {
     setServerError("");
     try {
       const response = await axiosInstance.post("/api/auth/v1/login", data);
-      console.log("SUCCESS:", response);
       router.push("/skolarly");
     } catch (error: any) {
       const errorMessage =
