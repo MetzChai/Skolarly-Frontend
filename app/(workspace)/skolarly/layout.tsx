@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { useState } from "react";
 import { studyNavItems, getPageMeta } from "@/lib/study-nav";
 import ProtectedRoute from "@/components/ProtectedRoute";
-
+import axiosInstance from "@/lib/axios";
 
 export default function SkolarlyLayout({
   children,
@@ -20,6 +20,14 @@ export default function SkolarlyLayout({
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const pageMeta = getPageMeta(pathname);
   const isChat = pathname === "/skolarly/tutor";
+
+  const handleLogout = async () => {
+    try {
+      await axiosInstance.post("/api/auth/v1/logout");
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -145,12 +153,28 @@ export default function SkolarlyLayout({
             </p>
           </div>
 
-          <Link href="/skolarly/tutor" className="hidden sm:block">
-            <Button size="sm" variant="outline" className="gap-1.5">
-              <Sparkles className="size-3.5" />
-              Ask tutor
+          {/* Right side buttons */}
+          <div className="hidden sm:flex items-center gap-2">
+            <Link href="/skolarly/tutor">
+              <Button size="sm" variant="outline" className="gap-1.5">
+                <Sparkles className="size-3.5" />
+                Ask tutor
+              </Button>
+            </Link>
+
+            <Button
+              size="sm"
+              variant="destructive"
+              className="gap-1.5"
+              onClick={() => {
+                handleLogout()
+
+                window.location.href = "/login";
+              }}
+            >
+              Logout
             </Button>
-          </Link>
+          </div>
         </header>
 
         <main
