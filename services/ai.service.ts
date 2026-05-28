@@ -28,8 +28,6 @@ export const aiService = {
       parts: [{ text: m.content }],
     }));
 
-    console.log("formatted history", formattedHistory);
-
     // CREATE FORMDATA
     const formData = new FormData();
 
@@ -47,10 +45,9 @@ export const aiService = {
       formData.append("file", file);
     }
 
-    console.log("file", file);
-
     // SEND REQUEST
-    const response = await axiosInstance.post(
+    try {
+      const response = await axiosInstance.post(
       "/api/ai/v1/ask",
       formData,
       {
@@ -60,8 +57,9 @@ export const aiService = {
         },
     );
 
-    console.log(response.data);
-
     return response.data;
+    } catch (error) {
+      console.log(error);
+    }
   },
 };

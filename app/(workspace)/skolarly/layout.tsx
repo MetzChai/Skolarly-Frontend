@@ -6,8 +6,7 @@ import { usePathname } from "next/navigation";
 import { ArrowLeft, Menu, X, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
-import axiosInstance from "@/lib/axios";
+import { useState } from "react";
 import { studyNavItems, getPageMeta } from "@/lib/study-nav";
 import ProtectedRoute from "@/components/ProtectedRoute";
 

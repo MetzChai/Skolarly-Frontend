@@ -48,6 +48,7 @@ export const AuthProvider = ({
 
         setUser(res.data.data.user);
       } catch (error) {
+        console.log("Error", error);
         setUser(null);
       } finally {
         setLoading(false);

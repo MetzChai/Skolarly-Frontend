@@ -64,7 +64,6 @@ export function useQuizLab() {
       );
 
       const data = response.data.data.quiz;
-      console.log("Quiz data", data);
 
       setQuiz(data.quiz);
       setSelectedAnswers(new Array(data.quiz.questions.length).fill(null));

@@ -10,48 +10,36 @@ const axiosInstance = axios.create({
   },
 });
 
-// --- Token Rotation State ---
-let isRefreshing = false;
-let failedQueue: any[] = [];
-
-const processQueue = (error: any, token: string | null = null) => {
-  failedQueue.forEach((prom) => {
-    if (error) {
-      prom.reject(error);
-    } else {
-      prom.resolve(token);
-    }
-  });
-  failedQueue = [];
-};
-
 axiosInstance.interceptors.response.use(
   (response) => response,
 
   async (error) => {
     const originalRequest = error.config;
     const status = error.response?.status;
-    console.log(status);
 
     // Prevent infinite loops
     if (
       originalRequest.url?.includes("/refresh-token") ||
       originalRequest.url?.includes("/me")
     ) {
-      return await axios.post(
-          "http://localhost:8000/api/auth/v1/refresh-token",
+      try {
+        await axios.post(
+          `${backendURL}/api/auth/v1/refresh-token`,
           {},
           {
             withCredentials: true,
           }
         );
+      } catch (error) {
+        console.log(error);
+      }
     }
 
     if (status === 401) {
 
       try {
         await axios.post(
-          "http://localhost:8000/api/auth/v1/refresh-token",
+          `${backendURL}/api/auth/v1/refresh-token`,
           {},
           {
             withCredentials: true,

@@ -15,7 +15,6 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 
 import { FileUpload } from "./file-upload";
-import type { LessonFormData } from "@/lib/schemas/lesson";
 
 interface Props {
   title: string;
