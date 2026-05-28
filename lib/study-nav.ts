@@ -22,13 +22,13 @@ export const studyNavItems: NavItem[] = [
   },
   {
     href: "/skolarly/lesson-lab",
-    label: "Lessons",
+    label: " AI Lesson Explainer",
     icon: BookOpen,
     description: "AI lesson explanations",
   },
   {
     href: "/skolarly/quiz-lab",
-    label: "Quizzes",
+    label: " AI Quiz Generator",
     icon: BrainCircuit,
     description: "Generate practice quizzes",
   },
