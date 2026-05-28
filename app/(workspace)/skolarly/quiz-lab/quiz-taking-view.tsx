@@ -49,7 +49,7 @@ export function QuizTakingView({
           </div>
         </div>
 
-        <Button variant="destructive" className="ml-4 rounded-xl" onClick={onExit}>
+        <Button className="ml-4 rounded-xl" onClick={onExit}>
           Exit
         </Button>
       </div>

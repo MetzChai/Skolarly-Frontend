@@ -164,7 +164,6 @@ export default function SkolarlyLayout({
 
             <Button
               size="sm"
-              variant="destructive"
               className="gap-1.5"
               onClick={() => {
                 handleLogout()
