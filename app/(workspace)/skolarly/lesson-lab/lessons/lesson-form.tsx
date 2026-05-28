@@ -58,25 +58,6 @@ export function LessonForm({
 
       <CardContent className="p-6">
         <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Lesson Title */}
-          <div>
-            <label className="block text-sm font-semibold mb-2">
-              Lesson Title
-            </label>
-
-            <Input
-              placeholder="e.g., Introduction to Photosynthesis"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              disabled={loading}
-              className={`h-12 rounded-xl ${validationErrors.title ? "border-red-500" : ""}`}
-            />
-            {validationErrors.title && (
-              <p className="mt-1 text-sm text-red-500">
-                {validationErrors.title}
-              </p>
-            )}
-          </div>
 
           {/* File Upload */}
           <FileUpload
@@ -84,27 +65,6 @@ export function LessonForm({
             handleFileChange={handleFileChange}
             removeFile={removeFile}
           />
-
-          {/* Lesson Content */}
-          <div>
-            <label className="block text-sm font-semibold mb-2">
-              Lesson Content
-            </label>
-
-            <Textarea
-              placeholder="Paste lesson notes or textbook content here..."
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              rows={8}
-              disabled={loading}
-              className={`resize-none rounded-2xl ${validationErrors.content ? "border-red-500" : ""}`}
-            />
-            {validationErrors.content && (
-              <p className="mt-1 text-sm text-red-500">
-                {validationErrors.content}
-              </p>
-            )}
-          </div>
 
           {/* Error */}
           {(error || validationErrors.file) && (
