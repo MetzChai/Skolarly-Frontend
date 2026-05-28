@@ -19,7 +19,7 @@ export default function ProtectedRoute({
   }, [loading, user, router]);
 
   if (loading) {
-    return <div className="p-4">Loading...</div>;
+    return <div className="p-4"></div>;
   }
 
   if (!user) return null;

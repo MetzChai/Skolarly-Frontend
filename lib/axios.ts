@@ -16,6 +16,7 @@ axiosInstance.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
     const status = error.response?.status;
+    const refreshToken = error.response?.refreshToken;
 
     // Prevent infinite loops
     if (
@@ -35,7 +36,7 @@ axiosInstance.interceptors.response.use(
       }
     }
 
-    if (status === 401) {
+    if (status === 401 && refreshToken) {
 
       try {
         await axios.post(
